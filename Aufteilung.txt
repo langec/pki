@@ -1,0 +1,5 @@
+Jan, Christian, Holger, Nico: Registrierung, Validierung, Request
+
+David, Philipp: Datenbank, Schnittstelle Ca <-> DB, CA
+
+Roland, Marvin: VA, OCSP

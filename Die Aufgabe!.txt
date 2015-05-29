@@ -1,0 +1,1 @@
+Als Aufgabe ist gedacht, wirklich alle Funktionalitäten der PKI zu implementieren, also z.B. auch die RA, die Directory Services (mit Sperrlisten und OCSP), etc. Je nachdem, welche Umgebung Ihr habt, könnt Ihr die Funktionalitäten auf verschiedenen (virtuellen) Servern implementieren. Die Frameworks haben auch ganz nette Anleitungen und Empfehlungen dazu.

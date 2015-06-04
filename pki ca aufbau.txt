@@ -1,0 +1,12 @@
+1. root ca erstellen: private key generieren (openssl genrsa), zertifikat generieren. das zertifikat wird von der root ca selbst signiert (mit dem private key) (openssl req mit -new parameter)
+
+2. intermediate ca erstellen: private key generieren (openssl genrsa), zertifikatsANFRAGE erstellen (openssl req) und mithilfe des private keys signieren. die ANFRAGE wird dann von der root ca signiert. (openssl ca)
+
+3. die root ca kann nun das zertifikat des intermediate Ca verifizieren. (openssl -verify)
+
+4. certificate chain file erstellen. dies ist nötig, da für die gültigkeit eines von der intermediate ca signierten zertifikats auch das zertifikat der intermeriate ca von der root ca verifiziert werden muss.
+
+info zu dateien:
+
+serial - speichert die aktuelle ID für ein neues zertifikat. wird von openssl automatisch bei erstellen eines zertifikats incrementiert. (quasi eine art primitives auto-increment)
+index.txt - speichert verweise auf alle erstellten zertifikate der jeweligen CA. jedes zertifikat bekommt eine ID basierend auf "serial" zugeordnet.

@@ -6,6 +6,10 @@
 
 4. certificate chain file erstellen. dies ist nötig, da für die gültigkeit eines von der intermediate ca signierten zertifikats auch das zertifikat der intermeriate ca von der root ca verifiziert werden muss.
 
+5. nun kann der "client" (zB website) mithilfe von openssl zuerst einen eigenen private key generieren, und anschließend eine CSR mithilfe dieses private keys (Im prinzip so wie die intermediate CA). diese CSR wird nun zu der intermediate CA geschickt, um dort signiert zu werden.
+
+6. CRL: wird per openssl ca -gencrl aus der index.txt datenbank heraus erstellt. zertifikate werden mithilfe von openssl ca -revoke als ungültig markiert, der entprechende eintrag innerhalb der index.txt datei erhält einen R prefix. anschließend muss die CRL erneut generiert werden. Die CRL selbst liegt hinter einer öffentlich zugänglichen URL, die wiederrum in von der intermediate CA signierten Zertifikaten kodiert ist. Dadurch kann zB der Webbrowser die gültigkeit des Zertifikats überprüfen.
+
 info zu dateien:
 
 serial - speichert die aktuelle ID für ein neues zertifikat. wird von openssl automatisch bei erstellen eines zertifikats incrementiert. (quasi eine art primitives auto-increment)

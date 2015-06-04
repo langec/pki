@@ -1,0 +1,1 @@
+V	250601132043Z		1000	unknown	/C=DE/ST=Deutschland/O=FH Bielefeld/OU=Abt. Minden/CN=Intermediate CA

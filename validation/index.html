@@ -1,0 +1,17 @@
+<html ng-app="validation-ng">
+<head>
+  <meta charset="utf8" />
+  <title>AngularJS Tutorial</title>
+</head>
+<body>
+  <ol ng-controller="validationForm">
+    <li ng-repeat="request in requests">
+      {{request}}<br>
+      <button ng-click="approve(request)">Freigeben</button>
+      <button ng-click="reject(request)">Abweisen</button>
+    </li>
+  </ol>   
+  <script src="./bower_components/angular/angular.min.js"></script>
+  <script src="validation-ng.js"></script>
+</body>
+</html>

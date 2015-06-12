@@ -94,7 +94,7 @@ function writeFile(path, content, cb, cbErr) {
 app.get('/', function (req, res, next) {
     console.log("Sending help response.");
     res.writeHead(200, {"Content-type": "text/plain"});
-    res.end("To issue a validation request: POST to /validate");
+    res.end("To issue a verification request: POST to /verify or /verifyraw");
 });
 
 //VERIFY FILE

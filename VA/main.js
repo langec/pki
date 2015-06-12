@@ -34,11 +34,21 @@ app.use(function (req, res, next) {
 //##############################################################################################################FUNCTIONS
 //ERROR FUNCTION
 function handleError(res, err) {
-    if (err) {
+    /*if (err) {
         console.log("ERROR: " + err);
         res.writeHead(500, {"Content-type": "text/plain"});
         res.end("ERROR: " + err);
-    }
+    }*/
+    sendResponse(res, 500, err);
+}
+
+function sendResponse(res, status, content) {
+    if (status == null || status === undefined) status = 406; //TODO better code when none waws given?
+    if (status == null || status === undefined) content = "";
+
+    console.log("Response(" + status + "): " + content);
+    res.writeHead(status, {"Content-type": "text/plain"});
+    res.end(content);
 }
 
 //Create unique file path
@@ -73,8 +83,9 @@ function writeFile(path, content, cb, cbErr) {
     fs.writeFile(path, content, function (err) {
         if (err) {
             cbErr(err);
+        } else {
+            cb();
         }
-        cb();
     });
 }
 
@@ -104,15 +115,21 @@ app.post('/verify', function (req, res, next) {
                 var v = new Verify(CAFile, CAPath);
                 v.verify(certPath, function (result) {
                     fs.unlink(certPath, function (err) {
-                        if (err) next(err);
-                        console.log('Cert successfully deleted.');
+                        if (err) {
+                            next(err);
 
-                        console.log("result: "+result);
-                        res.end(result);
+                        } else {
+                            console.log('Cert successfully deleted.');
+
+                            console.log("result: " + result);
+                            //res.end(result);
+                            sendResponse(res, result.status, result.content);
+                        }
                     });
                 })
                 //FIXME without unlink only!
                 //res.end("thx for the fish!");
+                //sendResponse(200, "Thx for the File!");
             },
             function (err) {
                 //Error
@@ -138,15 +155,21 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
             var v = new Verify(CAFile, CAPath);
             v.verify(certPath, function (result) {
                 fs.unlink(certPath, function (err) {
-                    if (err) next(err);
-                    console.log('Cert successfully deleted.');
+                    if (err) {
+                        next(err);
 
-                    console.log("result: "+result);
-                    res.end(result);
+                    } else {
+                        console.log('Cert successfully deleted.');
+
+                        console.log("result: " + result);
+                        //res.end(result);
+                        sendResponse(res, result.status, result.content);
+                    }
                 });
             })
             //FIXME without unlink only!
             //res.end("thx for the fish!");
+            //sendResponse(200, "Thx for the Text!");
         },
         function (err) {
             next(err);

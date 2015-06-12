@@ -44,6 +44,7 @@ Verify.prototype.verify = function (cert, callback) {
             jsonResult.content = error;
 
             callback(jsonResult);
+            return;
         }
 
         var resultArray = stdout.toString().split("/");
@@ -55,6 +56,7 @@ Verify.prototype.verify = function (cert, callback) {
             jsonResult.content = stderr.toString();
 
             callback(jsonResult);
+
         }else {
             // FIXME: Welche infos sollen an den client gehen? Reicht der Status zB "OK"
             jsonResult.status = 200;

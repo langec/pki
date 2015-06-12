@@ -1,0 +1,5 @@
+mongodb muss laufen (db:registration, collection:requests) sollte aber automatisch gehen 
+
+in /validation sind in /csrs und /pkeys die csr's bzw der private key zu finden
+
+die server(reistration.js und validation.js) laufen auf den ports 3300 bzw 4400

@@ -55,14 +55,13 @@ Verify.prototype.verify = function (cert, callback) {
             jsonResult.content = stderr.toString();
 
             callback(jsonResult);
+        }else {
+            // FIXME: Welche infos sollen an den client gehen? Reicht der Status zB "OK"
+            jsonResult.status = 200;
+            jsonResult.content = result;
+            console.log("Result: " + result );
+            callback(jsonResult);
         }
-
-
-        // FIXME: Welche infos sollen an den client gehen? Reicht der Status zB "OK"
-        jsonResult.status = 200;
-        jsonResult.content = result;
-        console.log("Result: " + result );
-        callback(jsonResult);
     });
 };
 

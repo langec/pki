@@ -18,6 +18,7 @@ var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem";
 var CAPath = "../CA2/openssltest/ca/intermediate";
 
 var PORT = 8080;
+var IP = "localhost";
 
 var app = express();
 //app.use(bodyParser());
@@ -182,5 +183,5 @@ app.use(function (err, req, res, next) {
 
 
 //##########################################################################################################SERVER-START
-app.listen(PORT);
-console.log("\n\n\n\nVA-Server running on localhost:" + PORT);
+app.listen(PORT, IP);
+console.log("\n\n\n\nVA-Server running on "+ IP +":" + PORT);

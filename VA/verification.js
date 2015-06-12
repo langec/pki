@@ -33,16 +33,36 @@ Verify.prototype.verify = function (cert, callback) {
     console.log('Verify: openssl verify -CAfile \"' + this.caFilePath + '\" -verbose -CApath \"' + this.directoryPath + '\" \"' + cert + '\"');
 
     this.childProcess = exec('openssl verify -CAfile \"' + this.caFilePath + '\" -verbose -CApath \"' + this.directoryPath + '\" \"' + cert + '\"', function (error, stdout, stderr) {
+        var  jsonResult = {
+            'status': 0,
+            'content':""
+        };
+
         if (error != null) {
             // FIXME: Was soll passieren, wenn es kracht ?
-            callback('exec error: ' + error);
+            jsonResult.status = 404;
+            jsonResult.content = error;
+
+            callback(jsonResult);
         }
 
         var resultArray = stdout.toString().split("/");
-        var result = resultArray[resultArray.length - 1]
+        var result = resultArray[resultArray.length - 1];
+
+        if (result.length == 0){
+            jsonResult.status = 404;
+            // FIXME: only for debug
+            jsonResult.content = stderr.toString();
+
+            callback(jsonResult);
+        }
+
 
         // FIXME: Welche infos sollen an den client gehen? Reicht der Status zB "OK"
-        callback(result);
+        jsonResult.status = 200;
+        jsonResult.content = result;
+        console.log("Result: " + result );
+        callback(jsonResult);
     });
 };
 

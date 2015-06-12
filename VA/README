@@ -1,0 +1,27 @@
+Version 1.0 der VA
+
+Componenten:
+- main.js 
+    - Der Webserver auf dem Requests angenommen werden können, weiteres dazu unten
+- verification.js
+    - Modul welches als Schnittstelle zu openssl(verify) genutzt wird 
+    
+Webserver:
+IP und PORT können im Code eingestellt werden(zurzeit auf localhost::8080)
+Folgende Request nimmt der Server entgegen:
+    GET
+        /           Help Informationen
+
+    POST
+        /verify     Body:File   Response:Text
+        /verifyraw  Body:Text   Response:Text
+        
+In /verify wird die cert.pem Datei im Body übergeben.
+In /verifyraw wird das Certificate als Raw Text übergeben.
+
+Arbeitsweise:
+Der Server wartet auf Requests. Kommt ein Request rein, so wird der Inhalt zwischengespeichert (in ./private/certs/<HASH>.pem). 
+Bei /verify wird die Datei direkt gespeichert.
+Bei /verifyraw wird der Content in eine Datei geschrieben. 
+Auf diesen Dateien wird das openssl verify ausgeführt (CAFile und CAPath können in der main.js angepasst werden).
+Bei Rückmeldung des Moduls, wird die temporäre Datei (<HASH>.pem) gelöscht und eine Response zurückgesendet.

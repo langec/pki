@@ -10,9 +10,14 @@ var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 var Random = require('random-js');
 var crypto = require('crypto');
+var Verify = require("./verification");
 
 //##################################################################################################################VARS
 var certPathPrefix = __dirname + '/private/certs/';
+var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem";
+var CAPath = "../CA2/openssltest/ca/intermediate";
+
+var PORT = 8080;
 
 var app = express();
 //app.use(bodyParser());
@@ -64,7 +69,7 @@ function saveFile(path, file, cbClose, cbErr) {
 
 //Write File
 function writeFile(path, content, cb, cbErr) {
-    console.log("path: " + path + "\ncontent: " + content);
+    //console.log("path: " + path + "\ncontent: " + content);
     fs.writeFile(path, content, function (err) {
         if (err) {
             cbErr(err);
@@ -87,7 +92,7 @@ app.post('/verify', function (req, res, next) {
 
     req.pipe(req.busboy);
     req.busboy.on('file', function (fieldname, file, filename) {
-        
+
         certPath = createFilePath();
         //console.log("Save cert under: " + certPath)
 
@@ -96,19 +101,18 @@ app.post('/verify', function (req, res, next) {
                 //Success
                 console.log("Cert saved!");
 
-                //TODO giev roland the path and wait for his return
-                //roland.verify(certPath);
+                var v = new Verify(CAFile, CAPath);
+                v.verify(certPath, function (result) {
+                    fs.unlink(certPath, function (err) {
+                        if (err) next(err);
+                        console.log('Cert successfully deleted.');
 
-
-                /*fs.unlink(certPath, function (err) {
-                    if (err) next(err);
-                    console.log('Cert successfully deleted: ' + certPath);
-                    //TODO real message
-                    res.end('thx for the fish!');
-                });*/
-
+                        console.log("result: "+result);
+                        res.end(result);
+                    });
+                })
                 //FIXME without unlink only!
-                res.end("thx for the fish!");
+                //res.end("thx for the fish!");
             },
             function (err) {
                 //Error
@@ -131,17 +135,18 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
         function () {
             console.log("Cert written and saved!");
 
-            //TODO giev roland the path and wait for his return
-            //roland.verify(certPath);
+            var v = new Verify(CAFile, CAPath);
+            v.verify(certPath, function (result) {
+                fs.unlink(certPath, function (err) {
+                    if (err) next(err);
+                    console.log('Cert successfully deleted.');
 
-            /*fs.unlink(certPath, function (err) {
-                if (err) next(err);
-                console.log('Cert successfully deleted: ' + certPath);
-                res.end("thx for the write");
-            });*/
-
+                    console.log("result: "+result);
+                    res.end(result);
+                });
+            })
             //FIXME without unlink only!
-            res.end("thx for the write");
+            //res.end("thx for the fish!");
         },
         function (err) {
             next(err);
@@ -154,5 +159,5 @@ app.use(function (err, req, res, next) {
 
 
 //##########################################################################################################SERVER-START
-app.listen(8080);
-console.log("\n\n\n\nVA-Server running on localhost:8080");
+app.listen(PORT);
+console.log("\n\n\n\nVA-Server running on localhost:" + PORT);

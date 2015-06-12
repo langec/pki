@@ -30,9 +30,9 @@ function Verify(CAfile, CApath) {
  * @param callback - function which will be called after verification to send the results back to the client
  */
 Verify.prototype.verify = function (cert, callback) {
-    console.log('Verify: openssl verify -verbose -CAfile' + cert + ' -CApath ' + this.directoryPath);
+    console.log('Verify: openssl verify -CAfile \"' + this.caFilePath + '\" -verbose -CApath \"' + this.directoryPath + '\" \"' + cert + '\"');
 
-    this.childProcess = exec('openssl verify -CAfile ' + this.caFilePath + ' -verbose -CApath ' + this.directoryPath + ' ' + cert, function (error, stdout, stderr) {
+    this.childProcess = exec('openssl verify -CAfile \"' + this.caFilePath + '\" -verbose -CApath \"' + this.directoryPath + '\" \"' + cert + '\"', function (error, stdout, stderr) {
         if (error != null) {
             // FIXME: Was soll passieren, wenn es kracht ?
             callback('exec error: ' + error);

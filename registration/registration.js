@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 var mongojs = require('mongojs');
-		  var db = mongojs('registration',['requests']);
+var db = mongojs('registration',['requests']);
       
 app.get('/', function (req, res) {
   res.send('Hello World!');
@@ -22,10 +22,7 @@ app.post('/', function (req, res) {
 });
 
 var server = app.listen(3300, function () {
-
   var host = server.address().address;
   var port = server.address().port;
-
   console.log('Example app listening at http://%s:%s', host, port);
-
 });

@@ -7,27 +7,6 @@ var app = express();
 
 app.enable('trust proxy');
 
-function handleError(res, err)
-{
-    if(err)
-    {
-        console.log("ERROR: " + err);
-        res.writeHead(500, {"Content-type" : "text/plain"});
-        res.end("ERROR: " + err);
-    }
-}
-
-function getIP(req)
-{
-	return req.ip;
-}
-
-function ipIsLocalhost(ip)
-{
-	//::1 is ipv6 localhost.
-	return (ip === "localhost" || ip === "127.0.0.1" || ip === "::1");
-}
-
 app.use(bodyParser.text({})); 
 
 app.use(function (req, res, next) {
@@ -37,9 +16,28 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', function (req, res) {
-    console.log("Sending help response.");
+	var ip = getIP(req);
+    console.log("Sending help response to " + ip);
     res.writeHead(200, {"Content-type" : "text/plain"});
     res.end("To issue a certificate request: POST to /certificateRequests");
+});
+
+app.get('/crl', function (req, res) {
+	var ip = getIP(req);   
+	var crlContent;
+	
+	try
+    {
+        crlContent = fs.readFileSync("crl/intermediate.crl.pem");
+    }
+    catch(err)
+    {
+        handleError(res, "Error reading CRL " + err);
+    }
+	
+	console.log("Sending CRL to " + ip);
+    res.writeHead(200, {"Content-type" : "text/plain"});
+    res.end(crlContent);
 });
 
 app.post('/revokeCert', function (req, res) {
@@ -167,3 +165,24 @@ app.post('/certificateRequests', function (req, res) {
 });
 
 app.listen(8080);
+
+function handleError(res, err)
+{
+    if(err)
+    {
+        console.log("ERROR: " + err);
+        res.writeHead(500, {"Content-type" : "text/plain"});
+        res.end("ERROR: " + err);
+    }
+}
+
+function getIP(req)
+{
+	return req.ip;
+}
+
+function ipIsLocalhost(ip)
+{
+	//::1 is ipv6 localhost.
+	return (ip === "localhost" || ip === "127.0.0.1" || ip === "::1");
+}

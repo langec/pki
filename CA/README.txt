@@ -21,7 +21,18 @@ Return codes: 200 bei Erfolg, 500 bei Fehler.
 
 Zertifikat sperren lassen:
 
-TODO
+Input:
+
+Methode: HTTP PUSH auf /revokeCert (Wird NUR von Localhost akzeptiert)
+Format: text/plain
+Inhalt: ID des zu sperrenden Zertifikats (z.B. 1013)
+
+Output:
+
+Methode: HTTP PUSH
+Format: text/plain
+Inhalt: Erfolgsmeldung oder Fehler.
+Return codes: 200 bei Erfolg, 500 bei Fehler.
 
 ==================================================================
 
@@ -35,5 +46,5 @@ Output:
 
 Methode: HTTP PUSH
 Format: text/plain
-Inhalt: Von OpenSSL generierte CRL als Text.
-Return codes: 200 bei Erfolg, 500 oder 404 bei Fehler.
+Inhalt: Von OpenSSL generierte CRL als Text oder Errortext.
+Return codes: 200 bei Erfolg, 500 bei Fehler.

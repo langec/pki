@@ -97,7 +97,9 @@ app.post('/approve', function (req, res) {
       //für kommandozeilenbefehl
       var exec = require('child_process').exec;
       
+
       //cert req erstellen per kommandozeile und openssl
+
       var child = exec("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj /C="+csrRequest.c+"/ST=\""+csrRequest.st+"\"/L=\""+csrRequest.l+"\"/O=\""+csrRequest.o+"\"/OU=\""+csrRequest.ou+"\"/CN=\""+csrRequest.cn+"\"",
         function (error, stdout, stderr) {
           console.log("exec done");
@@ -153,7 +155,7 @@ function postToCa(data){
     path: '/certificateRequests',
     method: 'POST',
     headers: {
-      'Content-Type': 'text',
+      'Content-Type': 'text/plain',
       'Content-Length': data.length
     }
   };
@@ -164,15 +166,57 @@ function postToCa(data){
     console.log("response ca: " + res.statusCode);
     
     //ca schickt daten, kann in mehreren blöcken geschehen(theoretisch)
+    var data;
     res.on('data', function(chunk){
       console.log("chunk: "+ chunk);
+      verifyCert(chunk.toString());
     });
     //fehler bei http-post
     req.on('error', function(e){
       console.log("error: " + e);
     });
+    req.on('end', function () {
+      console.log('BODY: ' + data);
+      verifyCert(data.toString());
+    });
+    
   })
   //request schreiben und schicken
+  req.write(data);
+  req.end();
+}
+
+function verifyCert(data){
+  console.log("verifying cert");
+  var vaPostOptions = {
+    hostname: 'localhost',
+    port: 6600,
+    path: '/verifyraw',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain',
+      'Content-Length': data.length
+    }
+  };
+  console.log("asda");
+  console.log(data);
+  console.log("asda");
+  var req = http.request(vaPostOptions,function(res){
+    var data;
+    console.log("response va: " + res.statusCode);
+    res.on('data', function(chunk){
+      console.log("chunk: "+ chunk);
+      data+=chunk;
+    });
+    req.on('error', function(e){
+      console.log("error: " + e);
+    });
+    req.on('end', function () {
+      console.log('BODY: ' + data);
+      
+    });
+  })
+  console.log(data);
   req.write(data);
   req.end();
 }

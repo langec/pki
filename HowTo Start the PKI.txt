@@ -1,0 +1,28 @@
+1. Umgebungsvariabeln hinzufügen:
+	a. Systemsteuerung -> System -> Einstellung ändern -> Umgebungsvariabeln -> bearbeiten
+	b. Dann die Pfade zu den .exe von Chrome, MongoDB, node eintragen (mit ; trennen)
+
+
+2. Konsole öffnen und folgendes ausführen:
+	mongod --dbpath="C:\Users\RBZ\Downloads\Temp"
+
+
+3. Neue Konsole im ordner "regristration" starten und folgendes ausführen:
+	node registration
+
+
+4. Neue Konsole im ordner "validation" starten und folgendes ausführen:
+	node validation
+
+
+5. Neue Konsole im ordner "CA2\openssltest\ca\intermediate" starten und folgendes ausführen:
+	node IntermediateCAServer
+
+
+6. Neue Konsole starten und folgendes ausführen:
+	chrome.exe --disable-web-security
+
+
+7. Im ordner "validation" index.html ausführen
+
+8. Im ordner "registration" index.html ausführen

@@ -22,8 +22,8 @@ var CRLfile = __dirname + "/private/"; //TODO look for the CRL file
 var PORT = 6600;
 var IP = "localhost";
 
-var cronJob = cron.job("*/10 * * * * *", updateJob); //debug mode all 5 seks
-//var cronJob = cron.job("* */30 * * * *", updateJob); //realMode all 30mins
+//var cronJob = cron.job("*/10 * * * * *", updateJob); //debug mode all 5 seks
+var cronJob = cron.job("* */30 * * * *", updateJob); //realMode all 30mins
 
 var app = express();
 //app.use(bodyParser());

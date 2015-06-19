@@ -1,4 +1,4 @@
-Version 1.0 der VA
+Version 1.0.1 der VA
 
 Componenten:
 - main.js 
@@ -7,7 +7,7 @@ Componenten:
     - Modul welches als Schnittstelle zu openssl(verify) genutzt wird 
     
 Webserver:
-IP und PORT können im Code eingestellt werden(zurzeit auf localhost::8080)
+IP und PORT können im Code eingestellt werden(zurzeit auf localhost::6600)
 Folgende Request nimmt der Server entgegen:
     GET
         /           Help Informationen

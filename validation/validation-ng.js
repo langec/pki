@@ -5,7 +5,7 @@ angular.module('validation-ng', [])
     //liste per http get holen
     $scope.getrequests = getrequests();
     function getrequests() {
-      $http.get("http://localhost:4400/", $scope.id).
+      $http.get("http://localhost:4400/registrationrequests", $scope.id).
           success(function(data, status, headers, config) {
             $scope.requests = data;
             console.log("got registration requests: " + data );

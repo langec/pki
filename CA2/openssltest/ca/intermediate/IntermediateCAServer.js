@@ -79,7 +79,8 @@ app.post('/certificateRequests', function (req, res) {
                     handleError(res, error);
                 } 
                 //check output of openssl verify, must be "<cert path>: OK"
-                else if(stdout !== "certs/"+certName + ": OK\n")
+                //else if(stdout !== "certs/"+certName + ": OK\n")
+                else if(stdout.indexOf("certs/"+certName + ": OK") < 0)
                 {
                     console.log("NOT OK: verifying cert against ca chain");
                     handleError(res, "Certificate validation against ca chain failed. (Verify output: "+stdout+")");

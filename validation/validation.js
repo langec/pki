@@ -83,7 +83,7 @@ function postToCa(data){
     path: '/certificateRequests',
     method: 'POST',
     headers: {
-      'Content-Type': 'text',
+      'Content-Type': 'text/plain',
       'Content-Length': data.length
     }
   };

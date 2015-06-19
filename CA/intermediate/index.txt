@@ -8,5 +8,5 @@ V	160628094033Z		100E	unknown	/C=de/ST=asdfas/L=dfasdf/O=asdfasdf/OU=asdf/CN=asd
 V	160628094245Z		100F	unknown	/C=de/ST=asdfasd/L=fasdf/O=asdfas/OU=asdfas/CN=dfasdfasdf
 V	160628094529Z		1010	unknown	/C=de/ST=asdfasdf/L=asdf/O=sdfa/OU=sdfas/CN=gffgt67tg
 V	160628094824Z		1011	unknown	/C=da/ST=sadfasdf/L=asdfas/O=dfasdfasdf/OU=asdf/CN=asdfasdf
-V	160628095031Z		1012	unknown	/C=ad/ST=asdfa/L=sdfasd/O=asdf/OU=sdf/CN=asdfsadf
-V	160628095309Z		1013	unknown	/C=de/ST=asdas/L=dasd/O=asdasd/OU=asd/CN=asdasd
+R	160628095031Z	150619185445Z	1012	unknown	/C=ad/ST=asdfa/L=sdfasd/O=asdf/OU=sdf/CN=asdfsadf
+R	160628095309Z	150619185113Z	1013	unknown	/C=de/ST=asdas/L=dasd/O=asdasd/OU=asd/CN=asdasd

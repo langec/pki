@@ -16,9 +16,9 @@ var exec = require('child_process').exec;
  *
  * @constructor
  */
-function Verify(CAfile, CApath) {
-    this.directoryPath = CApath;
+function Verify(CAfile,CACRL) {
     this.caFilePath = CAfile;
+    this.caCRL = CACRL;
     this.childProcess;
 }
 
@@ -30,9 +30,11 @@ function Verify(CAfile, CApath) {
  * @param callback - function which will be called after verification to send the results back to the client
  */
 Verify.prototype.verify = function (cert, callback) {
-    console.log('Verify: openssl verify -CAfile \"' + this.caFilePath + '\" -verbose -CApath \"' + this.directoryPath + '\" \"' + cert + '\"');
+    // TODO: Add the CRL
+    var progCall = 'openssl verify -CAfile \"' + this.caFilePath + '\" \"' + cert + '\"';
 
-    this.childProcess = exec('openssl verify -CAfile \"' + this.caFilePath + '\" -verbose -CApath \"' + this.directoryPath + '\" \"' + cert + '\"', function (error, stdout, stderr) {
+    console.log(progCall);  //FIXME: DEBUG
+    this.childProcess = exec(progCall , function (error, stdout, stderr) {
         var  jsonResult = {
             'status': 0,
             'content':""

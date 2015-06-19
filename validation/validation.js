@@ -32,7 +32,7 @@ app.post('/approve', function (req, res) {
       console.log(doc.cn);
       //cert req erstellen
       var exec = require('child_process').exec;
-      //openssl req -new -config etc/server.conf -out certs/simple.org.csr -keyout certs/simple.org.key
+      
       var child = exec("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj /C="+csrRequest.c+"/ST=\""+csrRequest.st+"\"/L=\""+csrRequest.l+"\"/O=\""+csrRequest.o+"\"/OU=\""+csrRequest.ou+"\"/CN=\""+csrRequest.cn+"\"",
         function (error, stdout, stderr) {
           console.log("exec done");
@@ -90,11 +90,50 @@ function postToCa(data){
   console.log(data);
   var req = http.request(caPostOptions,function(res){
     console.log("response ca: " + res.statusCode);
+    var data;
     res.on('data', function(chunk){
       console.log("chunk: "+ chunk);
+      data+=chunk;
     });
     req.on('error', function(e){
       console.log("error: " + e);
+    });
+    req.on('end', function () {
+      console.log('BODY: ' + data);
+      verifyCert(data);
+    });
+    
+  })
+  req.write(data);
+  req.end();
+}
+
+function verifyCert(data){
+  console.log("verifying cert");
+  var caPostOptions = {
+    hostname: 'localhost',
+    port: 6600,
+    path: '/verifyraw',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain',
+      'Content-Length': data.length
+    }
+  };
+  console.log(data);
+  var req = http.request(caPostOptions,function(res){
+    var data;
+    console.log("response va: " + res.statusCode);
+    res.on('data', function(chunk){
+      console.log("chunk: "+ chunk);
+      data+=chunk;
+    });
+    req.on('error', function(e){
+      console.log("error: " + e);
+    });
+    req.on('end', function () {
+      console.log('BODY: ' + data);
+      
     });
   })
   req.write(data);

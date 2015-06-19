@@ -26,3 +26,5 @@
 7. Im ordner "validation" index.html ausführen
 
 8. Im ordner "registration" index.html ausführen
+
+9. Chrome: strg+shift+j --> Console

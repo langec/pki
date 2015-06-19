@@ -5,6 +5,8 @@ var fs = require('fs');
 
 var app = express();
 
+app.enable('trust proxy');
+
 function handleError(res, err)
 {
     if(err)
@@ -13,6 +15,17 @@ function handleError(res, err)
         res.writeHead(500, {"Content-type" : "text/plain"});
         res.end("ERROR: " + err);
     }
+}
+
+function getIP(req)
+{
+	return req.ip;
+}
+
+function ipIsLocalhost(ip)
+{
+	//::1 is ipv6 localhost.
+	return (ip === "localhost" || ip === "127.0.0.1" || ip === "::1");
 }
 
 app.use(bodyParser.text({})); 
@@ -29,11 +42,55 @@ app.get('/', function (req, res) {
     res.end("To issue a certificate request: POST to /certificateRequests");
 });
 
+app.post('/revokeCert', function (req, res) {
+	console.log("Certificate Revocation Received!");
+    console.log(req.body);
+	
+	var ip = getIP(req);
+	 
+	if(!ipIsLocalhost(ip))
+	{
+		handleError(res, "Certificate Revocation only allowed by localhost! (IP was: " + ip + ")");
+		return;
+	}
+	
+	var certId = req.body;
+	if(certId.length < 4)
+	{
+		handleError(res, "Invalid post body. Body must contain certID (This is usually a four digit number, such as 1013.)");
+		return;
+	}
+	
+	//revoke cert
+	child = exec("openssl ca -config openssl.cnf -revoke newcerts/" + certId + ".pem -key dieme1234", function (error, stdout, stderr) {
+		if (error !== null) {
+            console.log("error while revoking cert");
+            handleError(res, error);
+        }
+        else
+        {
+			//if revokation worked, recreate CRL
+			child = exec("openssl ca -config openssl.cnf -gencrl -out crl/intermediate.crl.pem -key dieme1234", function (error, stdout, stderr) {
+				if (error !== null) {
+					console.log("error while recreating CRL");
+					handleError(res, error);
+				}
+				else
+				{
+					//success, yaaaay! :)
+					res.writeHead(200, {"Content-type" : "text/plain"});
+                    res.end("Certificate with ID " + certId + " successfully revoked.");
+				}
+			});
+		}
+	});
+});
+
 app.post('/certificateRequests', function (req, res) {
     console.log("Certificate Request Received!");
     console.log(req.body);
     
-    var ip = req.connection.remoteAdress;
+    var ip = getIP(req);
     var timestamp = new Date().getTime();
     var csrName = ip + "_" + timestamp + ".csr.pem";
     

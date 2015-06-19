@@ -118,6 +118,8 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
+# This is the URI to the CRL, may need to be changed if port or address changes!!! :)
+crlDistributionPoints = URI:http://localhost:8080/crl
 
 [ crl_ext ]
 # Extension for CRLs (`man x509v3_config`).

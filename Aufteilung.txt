@@ -1,4 +1,4 @@
-Jan, Christian, Holger, Nico: Registrierung, Validierung, Request
+Christian, Holger, Ricco: Registrierung, Validierung, Request
 
 David, Philipp: Datenbank, Schnittstelle Ca <-> DB, CA
 

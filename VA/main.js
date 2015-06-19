@@ -1,6 +1,6 @@
 /**
  * TODO: https connection
- * TODO: real response
+ * TODO: real response(ok, bad, unknown)
  */
 
 //###############################################################################################################REQUIRE
@@ -11,14 +11,19 @@ var fs = require('fs-extra');       //File System - for file manipulation
 var Random = require('random-js');
 var crypto = require('crypto');
 var Verify = require("./verification");
+var cron = require('cron');
 
 //##################################################################################################################VARS
 var certPathPrefix = __dirname + '/private/certs/';
-var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem";
-var CAPath = "../CA2/openssltest/ca/intermediate";
+var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem"   //__dirname + "/private/ca-chain.cert.pem";
+var CRLfile = __dirname + "/private/"; //TODO look for the CRL file
+//var CAPath = "../CA2/openssltest/ca/intermediate";
 
-var PORT = 8080;
+var PORT = 6600;
 var IP = "localhost";
+
+var cronJob = cron.job("*/10 * * * * *", updateJob); //debug mode all 5 seks
+//var cronJob = cron.job("* */30 * * * *", updateJob); //realMode all 30mins
 
 var app = express();
 //app.use(bodyParser());
@@ -36,15 +41,15 @@ app.use(function (req, res, next) {
 //ERROR FUNCTION
 function handleError(res, err) {
     /*if (err) {
-        console.log("ERROR: " + err);
-        res.writeHead(500, {"Content-type": "text/plain"});
-        res.end("ERROR: " + err);
-    }*/
+     console.log("ERROR: " + err);
+     res.writeHead(500, {"Content-type": "text/plain"});
+     res.end("ERROR: " + err);
+     }*/
     sendResponse(res, 500, err);
 }
 
 function sendResponse(res, status, content) {
-    if (status == null || status === undefined) status = 406; //TODO better code when none waws given?
+    if (status == null || status === undefined) status = 520; //Unknown Error
     if (status == null || status === undefined) content = "";
 
     console.log("Response(" + status + "): " + content);
@@ -90,6 +95,11 @@ function writeFile(path, content, cb, cbErr) {
     });
 }
 
+function updateJob(){
+    console.log("Updated!");
+    //TODO GET CA-ROOT + CRL and save them
+}
+
 //################################################################################################################ROUTES
 app.get('/', function (req, res, next) {
     console.log("Sending help response.");
@@ -113,7 +123,7 @@ app.post('/verify', function (req, res, next) {
                 //Success
                 console.log("Cert saved!");
 
-                var v = new Verify(CAFile, CAPath);
+                var v = new Verify(CAFile, CRLfile);
                 v.verify(certPath, function (result) {
                     fs.unlink(certPath, function (err) {
                         if (err) {
@@ -153,7 +163,7 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
         function () {
             console.log("Cert written and saved!");
 
-            var v = new Verify(CAFile, CAPath);
+            var v = new Verify(CAFile, CRLfile);
             v.verify(certPath, function (result) {
                 fs.unlink(certPath, function (err) {
                     if (err) {
@@ -184,4 +194,6 @@ app.use(function (err, req, res, next) {
 
 //##########################################################################################################SERVER-START
 app.listen(PORT, IP);
-console.log("\n\n\n\nVA-Server running on "+ IP +":" + PORT);
+console.log("\nVA-Server running on " + IP + ":" + PORT);
+cronJob.start();
+console.log("CA-RootCert + CRL Job started...");

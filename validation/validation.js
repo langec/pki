@@ -93,14 +93,14 @@ function postToCa(data){
     var data;
     res.on('data', function(chunk){
       console.log("chunk: "+ chunk);
-      data+=chunk;
+      verifyCert(chunk.toString());
     });
     req.on('error', function(e){
       console.log("error: " + e);
     });
     req.on('end', function () {
       console.log('BODY: ' + data);
-      verifyCert(data);
+      verifyCert(data.toString());
     });
     
   })
@@ -110,7 +110,7 @@ function postToCa(data){
 
 function verifyCert(data){
   console.log("verifying cert");
-  var caPostOptions = {
+  var vaPostOptions = {
     hostname: 'localhost',
     port: 6600,
     path: '/verifyraw',
@@ -120,8 +120,10 @@ function verifyCert(data){
       'Content-Length': data.length
     }
   };
+  console.log("asda");
   console.log(data);
-  var req = http.request(caPostOptions,function(res){
+  console.log("asda");
+  var req = http.request(vaPostOptions,function(res){
     var data;
     console.log("response va: " + res.statusCode);
     res.on('data', function(chunk){
@@ -136,6 +138,7 @@ function verifyCert(data){
       
     });
   })
+  console.log(data);
   req.write(data);
   req.end();
 }

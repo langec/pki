@@ -2,9 +2,17 @@
 <head>
   <meta charset="utf8" />
   <title>AngularJS Tutorial</title>
+  <script src="angular.min.js"></script>
+  <script src="reg-ng.js"></script>
 </head>
 <body>
   <form ng-controller="registrationForm">
+    <ol ng-if="error">
+      <li ng-repeat="err in error">
+        {{err}}<br/>
+      </li>
+    </ol>
+    
     Country (C = <b>DE</b>)<br/>
     <input type="text" ng-model="data.registrationRequest.c"></input><br/>
     
@@ -22,11 +30,18 @@
     
     Common Name (CN = <b>fh-bielefeld.de</b>):<br/>
     <input type="text" ng-model="data.registrationRequest.cn"></input><br/>
-    
     <br/>
-    <button ng-click="click()">Register</button>
+    <label ng-if="san">SANs:</label><br/>
+    <ol>
+      <li ng-repeat="san in data.registrationRequest.sans">
+        <input ng-model="san.san"/><br/>
+      </li>
+    </ol>
+    <br/>
+    <button ng-click="incSanCount()">Add SAN</button>
+    <br/>
+    <button ng-click="register()">Register</button>
   </form>    
-  <script src="angular.min.js"></script>
-  <script src="reg-ng.js"></script>
+  
 </body>
 </html>

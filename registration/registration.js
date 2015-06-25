@@ -3,6 +3,15 @@ var app = express();
 var bodyParser = require('body-parser');
 var fs = require('fs');
 
+//https
+var https = require('https');
+var key = fs.readFileSync('./ssl/key.pem');
+var cert = fs.readFileSync('./ssl/cert.pem');
+var https_options = {
+    key: key,
+    cert: cert
+};
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 var mongojs = require('mongojs');
@@ -65,3 +74,6 @@ var server = app.listen(3300, function () {
   var port = server.address().port;
   console.log('Registration app listening at http://%s:%s', host, port);
 });
+/*
+server = https.createServer(https_options, app).listen(3300);
+*/

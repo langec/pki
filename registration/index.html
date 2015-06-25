@@ -1,7 +1,7 @@
 <html ng-app="reg-ng">
 <head>
   <meta charset="utf8" />
-  <title>AngularJS Tutorial</title>
+  <title>Registration</title>
   <script src="angular.min.js"></script>
   <script src="reg-ng.js"></script>
 </head>
@@ -30,7 +30,11 @@
     
     Common Name (CN = <b>fh-bielefeld.de</b>):<br/>
     <input type="text" ng-model="data.registrationRequest.cn"></input><br/>
+    
+    Contact EMail Address:<br/>
+    <input type="text" ng-model="data.registrationRequest.emailAddress"></input><br/>
     <br/>
+     
     <label ng-if="san">SANs:</label><br/>
     <ol>
       <li ng-repeat="san in data.registrationRequest.sans">

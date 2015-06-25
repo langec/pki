@@ -26,6 +26,7 @@ angular.module('reg-ng', [])
           console.log("registration request send: " + data );
           //formular leeren
           $scope.data = null;
+          $scope.san = false;
         }).
         error(function(data, status, headers, config) {
           console.log("registration request not send: " + data);

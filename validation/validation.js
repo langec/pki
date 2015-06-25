@@ -81,6 +81,7 @@ app.get('/', function (req, res) {
   
 });
 
+//post requests von view/validation-ng
 app.post('/approve', function (req, res) {
   //registration request auf "approved" setzen und csr erstellen und an ca schicken
   var csrRequest;
@@ -94,13 +95,31 @@ app.post('/approve', function (req, res) {
       csrRequest = doc;
       console.log(doc.cn);
       
+      //san feld aufbauen
+      var san;
+      if(csrRequest.sans){
+        san = '';
+        for (var i = 0; i < csrRequest.sans.length; i++) {
+            san += csrRequest.sans[i].sanID + "=" + csrRequest.sans[i].san + ",";
+        }
+        //ohne letztes komma
+        san = san.substring(0,san.length-1);
+        san = "subjectAltName="+san;
+      }
+      
+      
       //für kommandozeilenbefehl
       var exec = require('child_process').exec;
+      var subj="/C="+csrRequest.c+"/ST=\""+csrRequest.st+"\"/L=\""+csrRequest.l+"\"/O=\""+csrRequest.o+"\"/OU=\""+csrRequest.ou+"\"/CN=\""+csrRequest.cn+"\"/emailAddress=\""+csrRequest.emailAddress+"\"/";
+      if(san){
+        console.log(san);
+        subj+=san;
+      }
       
-
       //cert req erstellen per kommandozeile und openssl
+//    /emailAddress=\""+csrRequest.emailAddress+"\"/subjectAltName=\""+san+"\"
 
-      var child = exec("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj /C="+csrRequest.c+"/ST=\""+csrRequest.st+"\"/L=\""+csrRequest.l+"\"/O=\""+csrRequest.o+"\"/OU=\""+csrRequest.ou+"\"/CN=\""+csrRequest.cn+"\"",
+      var child = exec("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj "+subj,
         function (error, stdout, stderr) {
           console.log("exec done");
           //kommandozeilenausgabe überprüfen
@@ -174,6 +193,7 @@ function postToCa(data){
     //fehler bei http-post
     req.on('error', function(e){
       console.log("error: " + e);
+      return false;
     });
     req.on('end', function () {
       console.log('BODY: ' + data);
@@ -184,6 +204,7 @@ function postToCa(data){
   //request schreiben und schicken
   req.write(data);
   req.end();
+  return true;
 }
 
 function verifyCert(data){

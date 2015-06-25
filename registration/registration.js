@@ -4,13 +4,14 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 
 //https
+/*
 var https = require('https');
 var key = fs.readFileSync('./ssl/key.pem');
 var cert = fs.readFileSync('./ssl/cert.pem');
 var https_options = {
     key: key,
     cert: cert
-};
+};*/
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());

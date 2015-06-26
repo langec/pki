@@ -1,4 +1,7 @@
-Version 1.0.1 der VA
+Version 1.0.2 der VA
+
+WICHTIG!
+openssl Version 1.0.2 wird mindestens gebraucht!!!
 
 Componenten:
 - main.js 
@@ -13,8 +16,10 @@ Folgende Request nimmt der Server entgegen:
         /           Help Informationen
 
     POST
-        /verify     Body:File   Response:Text
-        /verifyraw  Body:Text   Response:Text
+        /verify         Body:File   Response:Text
+        /verifyraw      Body:Text   Response:Text
+        /verifyocsp     NYI
+        /verifyrawocsp  NYI
         
 In /verify wird die cert.pem Datei im Body übergeben.
 In /verifyraw wird das Certificate als Raw Text übergeben.
@@ -25,3 +30,8 @@ Bei /verify wird die Datei direkt gespeichert.
 Bei /verifyraw wird der Content in eine Datei geschrieben. 
 Auf diesen Dateien wird das openssl verify ausgeführt (CAFile und CAPath können in der main.js angepasst werden).
 Bei Rückmeldung des Moduls, wird die temporäre Datei (<HASH>.pem) gelöscht und eine Response zurückgesendet.
+
+
+
+Changelog:
+1.0.2       CRL Support hinzugefügt, OCSP Route definiert

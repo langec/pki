@@ -20,7 +20,6 @@ function Verify(CAfile,CACRL) {
     this.caFilePath = CAfile;
     this.caCRL = CACRL;
     this.childProcess;
-    this.crlUrl = "";
 }
 
 // Functions |--------------------------------------------------
@@ -28,17 +27,17 @@ Verify.prototype.getCrlUrl = function(cert, callback){
     var progCall = 'openssl x509 -in \"' + cert + '\" -noout -text';
     console.log(progCall);  //FIXME: DEBUG
 
+    var url ="";
     this.childProcess = exec(progCall , function (error, stdout, stderr) {
         var lines = stdout.toString().split('\n');
         for(var i = 0;i < lines.length;i++){
             if(lines[i].search("Full Name:") != -1){
-                this.crlUrl = lines[++i].trim().replace("URI:", "");
+                url = lines[++i].trim().replace("URI:", "");
                 break;
             }
         }
+        callback(url);
     });
-
-    callback(this.caCRL);
 };
 
 /**
@@ -47,8 +46,8 @@ Verify.prototype.getCrlUrl = function(cert, callback){
  * @param cert - path to the Certificate in .pem format
  * @param callback - function which will be called after verification to send the results back to the client
  */
-Verify.prototype.verify = function (cert, callback) {
-    var progCall = 'openssl verify -crl_check -CRLfile \"'+ this.crlUrl +'\" -CAfile \"' + this.caFilePath + '\" \"' + cert + '\"';
+Verify.prototype.verify = function (cert, crlUrl, callback) {
+    var progCall = 'openssl verify -crl_check -CRLfile \"'+ crlUrl +'\" -CAfile \"' + this.caFilePath + '\" \"' + cert + '\"';
 
     console.log(progCall);
     this.childProcess = exec(progCall , function (error, stdout, stderr) {

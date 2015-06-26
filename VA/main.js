@@ -13,6 +13,7 @@ var fs = require('fs-extra');       //File System - for file manipulation
 var Random = require('random-js');
 var crypto = require('crypto');
 var Verify = require("./verification");
+var http = require('http');
 //var cron = require('cron');
 
 //##################################################################################################################VARS
@@ -52,8 +53,36 @@ function sendResponse(res, status, content) {
     res.end(content);
 }
 
+function getCRL(url, success, error) {
+    var crl_req = http.get(url, function (res) {
+        //console.log('STATUS: ' + res.statusCode);
+        //console.log('HEADERS: ' + JSON.stringify(res.headers));
+
+        var bodyChunks = [];
+        res.on('data', function (chunk) {
+            // You can process streamed parts here...
+            bodyChunks.push(chunk);
+        }).on('end', function () {
+            var body = Buffer.concat(bodyChunks);
+
+            if (res.statusCode != 200 && res.statusCode != "200") {
+                error("CRL Get Request to " + url + "  Message: " + res.statusCode + " " + body);
+                return;
+            }
+
+            //console.log('BODY: ' + body);
+            success(body);
+        });
+
+    });
+
+    crl_req.on('error', function (err) {
+        error(err);
+    });
+}
+
 //Create unique file path
-function createFilePath() {
+function createFilePath(ending) {
     //gett Date
     var d = new Date();
     //get Randoom Number
@@ -62,7 +91,11 @@ function createFilePath() {
     //create hash
     var hash = crypto.createHash('sha1').update(d + n).digest('hex');
 
-    return certPathPrefix + hash + ".pem";
+    if (ending == null || ending === undefined) {
+        ending = ".pem";
+    }
+
+    return certPathPrefix + hash + ending;
 }
 
 //Save Files
@@ -90,52 +123,72 @@ function writeFile(path, content, cb, cbErr) {
     });
 }
 
-/*//Old
-function updateJob(){
-    console.log("Updated!");
-}//*/
-
 //################################################################################################################ROUTES
 app.get('/', function (req, res, next) {
     console.log("Sending help response.");
     res.writeHead(200, {"Content-type": "text/plain"});
-    res.end("To issue a verification request: Send a POST Request with the Certificate to /verify (as File) or /verifyraw (as Raw Text)");
+    res.end("To issue a verification request: Send a POST Request with the Certificate to <br>CRL Check<br>/verify (as File)<br>/verifyraw (as Raw Text)" +
+    "<br>OCSP<br>/verifyocsp (as File)<br>/verifyrawocsp (as Raw Text)");
 });
 
 //VERIFY FILE
 app.post('/verify', function (req, res, next) {
     console.log("/VERIFY");
-    //console.log(req.body);
 
     req.pipe(req.busboy);
     req.busboy.on('file', function (fieldname, file, filename) {
 
-        certPath = createFilePath();
+        var certPath = createFilePath();
         //console.log("Save cert under: " + certPath)
 
         saveFile(certPath, file,
             function () {
                 //Success
                 console.log("Cert saved!");
+                var v = new Verify(CAFile);
+                var clrUrl = v.getCrlUrl();
 
-                var v = new Verify(CAFile, CRLfile);
-                v.verify(certPath, function (result) {
-                    fs.unlink(certPath, function (err) {
-                        if (err) {
-                            next(err);
+                getCRL(crlURL,
+                    function (body) {
+                        console.log("BODY:\n" + body);
+                        var crlTempPath = createFilePath();
 
-                        } else {
-                            console.log('Cert successfully deleted.');
+                        writeFile(crlTempPath, body,
+                            function () {
+                                //console.log("CRL saved in " + crlTempPath);
+                                v.verify(certPath, crlTempPath, function (result) {
+                                    //Delete Cert Temp File
+                                    fs.unlink(certPath, function (err) {
+                                        if (err) {
+                                            next(err);
+                                        } else {
+                                            console.log('Cert successfully deleted.');
 
-                            console.log("result: " + result);
-                            //res.end(result);
-                            sendResponse(res, result.status, result.content);
-                        }
+                                            //Delete Crl Temp File
+                                            fs.unlink(crlTempPath, function (err) {
+                                                if (err) {
+                                                    next(err);
+
+                                                } else {
+                                                    console.log('Crl successfully deleted.');
+                                                    console.log("RESULT: " + result);
+                                                    sendResponse(res, result.status, result.content);
+                                                }
+                                            });
+                                        }
+                                    });
+                                })
+                                //FIXME without unlink only!
+                                //res.end("thx for the fish!");
+                                //sendResponse(200, "Thx for the File!");
+                            },
+                            function (err) {
+                                next(err);
+                            });
+                    },
+                    function (err) {
+                        next(err);
                     });
-                })
-                //FIXME without unlink only!
-                //res.end("thx for the fish!");
-                //sendResponse(200, "Thx for the File!");
             },
             function (err) {
                 //Error
@@ -143,6 +196,13 @@ app.post('/verify', function (req, res, next) {
             })
     });
 
+});
+
+//VERIFYOCSP FILE
+app.post('/verifyocsp', function (req, res, next) {
+    console.log("/verifyocsp");
+    console.log("NYI!");
+    sendResponse(res, 200, "OCSP not yet implemented!");
 });
 
 //VERIFY RAW STRING
@@ -159,7 +219,10 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
             console.log("Cert written and saved!");
 
             var v = new Verify(CAFile, CRLfile);
-            v.verify(certPath, function (result) {
+
+            //TODO add crl stuff here!!!
+
+            v.verify(certPath, crlPath, function (result) {
                 fs.unlink(certPath, function (err) {
                     if (err) {
                         next(err);
@@ -182,10 +245,17 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
         })
 });
 
+//VERIFYOCSP RAW STRING
+var bodyParserText = bodyParser.text({});
+app.post('/verifyrawocsp', function (req, res, next) {
+    console.log("/verifyrawocsp");
+    console.log("NYI!");
+    sendResponse(res, 200, "OCSP not yet implemented!");
+});
+
 app.use(function (err, req, res, next) {
     handleError(res, err);
 });
-
 
 //##########################################################################################################SERVER-START
 app.listen(PORT, IP);

@@ -1,7 +1,8 @@
 /**
  * TODO: https connection
  * TODO: real response(ok, bad, unknown)
- * TODO: CRL getRequest
+ * TODO: get CA Certificate
+ * TODO: OCSP?
  */
 
 //###############################################################################################################REQUIRE
@@ -16,9 +17,13 @@ var Verify = require("./verification");
 
 //##################################################################################################################VARS
 var certPathPrefix = __dirname + '/private/certs/';
+<<<<<<< HEAD
 var CAFile = "../CA/intermediate/certs/ca-chain.cert.pem";   //__dirname + "/private/ca-chain.cert.pem";
 var CRLfile = __dirname + "/private/"; //TODO look for the CRL file
 //var CAPath = "../CA2/openssltest/ca/intermediate";
+=======
+var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem"   //__dirname + "/private/ca-chain.cert.pem";
+>>>>>>> 1151a5bb0ec2b191f3cce0403655328790b93546
 
 var PORT = 6600;
 var IP = "localhost";
@@ -41,11 +46,6 @@ app.use(function (req, res, next) {
 //##############################################################################################################FUNCTIONS
 //ERROR FUNCTION
 function handleError(res, err) {
-    /*if (err) {
-     console.log("ERROR: " + err);
-     res.writeHead(500, {"Content-type": "text/plain"});
-     res.end("ERROR: " + err);
-     }*/
     sendResponse(res, 500, err);
 }
 
@@ -96,16 +96,16 @@ function writeFile(path, content, cb, cbErr) {
     });
 }
 
+/*//Old
 function updateJob(){
     console.log("Updated!");
-    //TODO GET CA-ROOT + CRL and save them
-}
+}//*/
 
 //################################################################################################################ROUTES
 app.get('/', function (req, res, next) {
     console.log("Sending help response.");
     res.writeHead(200, {"Content-type": "text/plain"});
-    res.end("To issue a verification request: POST to /verify or /verifyraw");
+    res.end("To issue a verification request: Send a POST Request with the Certificate to /verify (as File) or /verifyraw (as Raw Text)");
 });
 
 //VERIFY FILE
@@ -196,5 +196,3 @@ app.use(function (err, req, res, next) {
 //##########################################################################################################SERVER-START
 app.listen(PORT, IP);
 console.log("\nVA-Server running on " + IP + ":" + PORT);
-cronJob.start();
-console.log("CA-RootCert + CRL Job started...");

@@ -7,6 +7,8 @@ app.use(bodyParser.json());
 var mongojs = require('mongojs');
 var db = mongojs('registration',['requests']);
 var http = require('http');
+var csrCfgFile = fs.readFileSync('./etc/server.conf');
+var exec = require('child_process').exec;
 
 //alle get-requests an den server fangen
 app.get('/*', function (req, res) {
@@ -91,65 +93,12 @@ app.post('/approve', function (req, res) {
       update: { $set: { status:'approved' } },
       new: true
   }, function(err, doc, lastErrorObject) {
-    //datenbank hat request auf approved gesetzt und in 'doc' zurückgeliefert
+      //datenbank hat request auf approved gesetzt und in 'doc' zurückgeliefert
       csrRequest = doc;
       console.log(doc.cn);
       
-      //san feld aufbauen
-      var san;
-      if(csrRequest.sans){
-        san = '';
-        for (var i = 0; i < csrRequest.sans.length; i++) {
-            san += csrRequest.sans[i].sanID + "=" + csrRequest.sans[i].san + ",";
-        }
-        //ohne letztes komma
-        san = san.substring(0,san.length-1);
-        san = "subjectAltName="+san;
-      }
-      
-      
-      //für kommandozeilenbefehl
-      var exec = require('child_process').exec;
-      var subj="/C="+csrRequest.c+"/ST=\""+csrRequest.st+"\"/L=\""+csrRequest.l+"\"/O=\""+csrRequest.o+"\"/OU=\""+csrRequest.ou+"\"/CN=\""+csrRequest.cn+"\"/emailAddress=\""+csrRequest.emailAddress+"\"/";
-      if(san){
-        console.log("setting san:" + san);
-        var sancfg = exec("setx SAN "+san + " /M",function(error, stdout, stderr){
-          
-          console.log(stdout);
-        });
-      }
-      
-      
-      //cert req erstellen per kommandozeile und openssl
-      console.log("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj "+subj);
-      var child = exec("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj "+subj,
-        function (error, stdout, stderr) {
-          console.log("exec done");
-          //kommandozeilenausgabe überprüfen
-          if(error){
-            console.log("error" + error);
-            console.log(stderr);
-            res.send("request not approved, check serverlog");
-          }else{
-            console.log("reading csr file: " + "./csrs/"+csrRequest.cn+".csr")
-          
-            //csr lesen und an ca schicken
-            fs.readFile("./csrs/"+csrRequest.cn+".csr",'utf-8',function(err,data){
-              if(!err){
-                console.log("postToCa");
-                //an ca schicken
-                postToCa(data);
-              }else{
-                console.log(err);
-              }
-            });
-            res.send("request approved");
-          }
-      //ende exec callback
-      });
-      
-      //db.requests.save(req.body.request);
-      
+      // .csr erstellen
+      createCSR(csrRequest, res);        
   });
 });
 
@@ -165,6 +114,56 @@ app.post('/reject', function (req, res) {
   });
   res.send("request rejected");
 });
+
+//cert req erstellen per kommandozeile und openssl
+function createCSR(csrRequest, res){
+  
+  var configfileToUse = "etc/server.conf";
+  
+  //san feld aufbauen
+  var san;
+  if(csrRequest.sans){
+    san = '';
+    for (var i = 0; i < csrRequest.sans.length; i++) {
+        san += csrRequest.sans[i].sanID + " = " + csrRequest.sans[i].san + "\n";
+    }
+    console.log("setting san:\n" + san + "\n\n");
+    fs.writeFileSync('./etc/san.conf', csrCfgFile + san);
+    configfileToUse = "etc/san.conf";
+  }
+  
+  //subj feld aufbauen
+  var subj="/C="+csrRequest.c+"/ST=\""+csrRequest.st+"\"/L=\""+csrRequest.l+"\"/O=\""+csrRequest.o+"\"/OU=\""+csrRequest.ou+"\"/CN=\""+csrRequest.cn+"\"/emailAddress=\""+csrRequest.emailAddress+"\"/";
+  
+  //command zusammensetzen
+  var command = "openssl req -new -config " + configfileToUse + " -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj "+subj;
+  console.log(command);
+  
+  var child = exec(command, function (error, stdout, stderr) {
+      console.log("exec done");
+      //kommandozeilenausgabe überprüfen
+      if(error){
+        console.log("error" + error);
+        console.log(stderr);
+        res.send("request not approved, check serverlog");
+      }else{
+        console.log("reading csr file: " + "./csrs/"+csrRequest.cn+".csr");
+      
+        //csr lesen und an ca schicken
+        fs.readFile("./csrs/"+csrRequest.cn+".csr",'utf-8',function(err,data){
+          if(!err){
+            console.log("postToCa");
+            //an ca schicken
+            postToCa(data);
+          }else{
+            console.log(err);
+          }
+        });
+        res.send("request approved");
+      }
+  //ende exec callback
+  });
+}
 
 //schickt csr an ca
 function postToCa(data){

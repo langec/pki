@@ -155,10 +155,10 @@ app.post('/verify', function (req, res, next) {
 var bodyParserText = bodyParser.text({});
 app.post('/verifyraw', bodyParserText, function (req, res, next) {
     console.log("/VERIFY-RAW");
-    //console.log(req.body);
+    console.log(req.body);
 
     certPath = createFilePath();
-    //console.log("Write cert to: " + certPath)
+    console.log("Write cert to: " + certPath);
 
     writeFile(certPath, req.body,
         function () {

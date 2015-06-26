@@ -19,12 +19,13 @@
 	node IntermediateCAServer
 
 
+//nur nötig wenn man die index.html direkt ausführt, siehe Punkt 7 u. 8
 6. Neue Konsole starten und folgendes ausführen:
 	chrome.exe --disable-web-security
 
 
-7. Im ordner "validation" index.html ausführen
+7. Im ordner "validation" index.html ausführen; ist jetzt auch unter http://localhost:3300/ erreichbar
 
-8. Im ordner "registration" index.html ausführen
+8. Im ordner "registration" index.html ausführen; ist jetzt auch unter http://localhost:4400/ erreichbar
 
 9. Chrome: strg+shift+j --> Console

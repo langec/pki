@@ -1,32 +1,51 @@
 <html ng-app="reg-ng">
 <head>
   <meta charset="utf8" />
-  <title>AngularJS Tutorial</title>
+  <title>Registration</title>
+  <script src="angular.min.js"></script>
+  <script src="reg-ng.js"></script>
 </head>
 <body>
   <form ng-controller="registrationForm">
+    <ol ng-if="error">
+      <li ng-repeat="err in error">
+        {{err}}<br/>
+      </li>
+    </ol>
+    
     Country (C = <b>DE</b>)<br/>
-    <input type="text" ng-model="data.request.c"></input><br/>
+    <input type="text" ng-model="data.registrationRequest.c"></input><br/>
     
     State (ST = <b>NRW</b>)<br/>
-    <input type="text" ng-model="data.request.st"></input><br/>
+    <input type="text" ng-model="data.registrationRequest.st"></input><br/>
     
     Location (L = <b>Minden</b>)<br/>
-    <input type="text" ng-model="data.request.l"></input><br/>
+    <input type="text" ng-model="data.registrationRequest.l"></input><br/>
     
     Organization (O = <b>FH Bielefeld</b>):<br/>
-    <input type="text" ng-model="data.request.o"></input><br/>
+    <input type="text" ng-model="data.registrationRequest.o"></input><br/>
     
     Organizational Unit (OU = <b>FB Technik</b>):<br/>
-    <input type="text" ng-model="data.request.ou"></input><br/>
+    <input type="text" ng-model="data.registrationRequest.ou"></input><br/>
     
     Common Name (CN = <b>fh-bielefeld.de</b>):<br/>
-    <input type="text" ng-model="data.request.cn"></input><br/>
+    <input type="text" ng-model="data.registrationRequest.cn"></input><br/>
     
+    Contact EMail Address:<br/>
+    <input type="text" ng-model="data.registrationRequest.emailAddress"></input><br/>
     <br/>
-    <button ng-click="click()">Register</button>
+     
+    <label ng-if="san">SANs:</label><br/>
+    <ol>
+      <li ng-repeat="san in data.registrationRequest.sans">
+        <input ng-model="san.san"/><br/>
+      </li>
+    </ol>
+    <br/>
+    <button ng-click="incSanCount()">Add SAN</button>
+    <br/>
+    <button ng-click="register()">Register</button>
   </form>    
-  <script src="./bower_components/angular/angular.min.js"></script>
-  <script src="reg-ng.js"></script>
+  
 </body>
 </html>

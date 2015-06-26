@@ -18,13 +18,7 @@ var http = require('http');
 
 //##################################################################################################################VARS
 var certPathPrefix = __dirname + '/private/certs/';
-<<<<<<< HEAD
 var CAFile = "../CA/intermediate/certs/ca-chain.cert.pem";   //__dirname + "/private/ca-chain.cert.pem";
-var CRLfile = __dirname + "/private/"; //TODO look for the CRL file
-//var CAPath = "../CA2/openssltest/ca/intermediate";
-=======
-var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem"   //__dirname + "/private/ca-chain.cert.pem";
->>>>>>> 1151a5bb0ec2b191f3cce0403655328790b93546
 
 var PORT = 6600;
 var IP = "localhost";
@@ -151,50 +145,64 @@ app.post('/verify', function (req, res, next) {
             function () {
                 //Success
                 console.log("Cert saved!");
+
                 var v = new Verify(CAFile);
-                var clrUrl = v.getCrlUrl();
+                v.getCrlUrl(certPath, function(clrUrl){
+                    if (clrUrl === undefined || clrUrl == null || clrUrl == "") {
+                        //Delete cert file
+                        fs.unlink(certPath, function (err) {
+                            if (err) {
+                                next("Could not get the CRL Url from the Certificate! And could not remove the Certificate! ->" + err);
+                            } else {
+                                next("Could not get the CRL Url from the Certificate!");
+                            }
+                        });
+                        return;
+                    }
 
-                getCRL(crlURL,
-                    function (body) {
-                        console.log("BODY:\n" + body);
-                        var crlTempPath = createFilePath();
+                    getCRL(clrUrl,
+                        function (body) {
+                            console.log("BODY:\n" + body);
 
-                        writeFile(crlTempPath, body,
-                            function () {
-                                //console.log("CRL saved in " + crlTempPath);
-                                v.verify(certPath, crlTempPath, function (result) {
-                                    //Delete Cert Temp File
-                                    fs.unlink(certPath, function (err) {
-                                        if (err) {
-                                            next(err);
-                                        } else {
-                                            console.log('Cert successfully deleted.');
+                            var crlTempPath = createFilePath();
+                            writeFile(crlTempPath, body,
+                                function () {
+                                    //console.log("CRL saved in " + crlTempPath);
 
-                                            //Delete Crl Temp File
-                                            fs.unlink(crlTempPath, function (err) {
-                                                if (err) {
-                                                    next(err);
+                                    v.verify(certPath, crlTempPath, function (result) {
+                                        //Delete Cert Temp File
+                                        fs.unlink(certPath, function (err) {
+                                            if (err) {
+                                                next(err);
+                                            } else {
+                                                console.log('Cert successfully deleted.');
 
-                                                } else {
-                                                    console.log('Crl successfully deleted.');
-                                                    console.log("RESULT: " + result);
-                                                    sendResponse(res, result.status, result.content);
-                                                }
-                                            });
-                                        }
-                                    });
-                                })
-                                //FIXME without unlink only!
-                                //res.end("thx for the fish!");
-                                //sendResponse(200, "Thx for the File!");
-                            },
-                            function (err) {
-                                next(err);
-                            });
-                    },
-                    function (err) {
-                        next(err);
-                    });
+                                                //Delete Crl Temp File
+                                                fs.unlink(crlTempPath, function (err) {
+                                                    if (err) {
+                                                        next(err);
+
+                                                    } else {
+                                                        console.log('Crl successfully deleted.');
+                                                        console.log("RESULT: " + result);
+                                                        sendResponse(res, result.status, result.content);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    })
+                                    //FIXME without unlink only!
+                                    //res.end("thx for the fish!");
+                                    //sendResponse(200, "Thx for the File!");
+                                },
+                                function (err) {
+                                    next(err);
+                                });
+                        },
+                        function (err) {
+                            next(err);
+                        });
+                });
             },
             function (err) {
                 //Error
@@ -224,7 +232,7 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
         function () {
             console.log("Cert written and saved!");
 
-            var v = new Verify(CAFile, CRLfile);
+            var v = new Verify(CAFile);
 
             //TODO add crl stuff here!!!
 

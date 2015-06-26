@@ -90,7 +90,8 @@ app.post('/certificateRequests', function (req, res) {
     
     var ip = getIP(req);
     var timestamp = new Date().getTime();
-    var csrName = ip + "_" + timestamp + ".csr.pem";
+    var csrName = timestamp + "_" + ip + ".csr.pem";
+	csrName = csrName.replace(/:/g, '_');
     
     try
     {
@@ -104,7 +105,8 @@ app.post('/certificateRequests', function (req, res) {
     }
     
     
-    var certName = ip + "_" + timestamp + ".cert.pem";
+    var certName = timestamp + "_" + ip + ".cert.pem";
+	certName = certName.replace(/:/g, '_');
     
     //sign request using openssl
     console.log("signing tmp csr");
@@ -178,7 +180,8 @@ function handleError(res, err)
 
 function getIP(req)
 {
-	return req.ip;
+	var ip = req.ip;;
+	return ip;
 }
 
 function ipIsLocalhost(ip)

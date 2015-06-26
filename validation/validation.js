@@ -112,13 +112,16 @@ app.post('/approve', function (req, res) {
       var exec = require('child_process').exec;
       var subj="/C="+csrRequest.c+"/ST=\""+csrRequest.st+"\"/L=\""+csrRequest.l+"\"/O=\""+csrRequest.o+"\"/OU=\""+csrRequest.ou+"\"/CN=\""+csrRequest.cn+"\"/emailAddress=\""+csrRequest.emailAddress+"\"/";
       if(san){
-        console.log(san);
-        subj+=san;
+        console.log("setting san:" + san);
+        var sancfg = exec("setx SAN "+san + " /M",function(error, stdout, stderr){
+          
+          console.log(stdout);
+        });
       }
       
+      
       //cert req erstellen per kommandozeile und openssl
-//    /emailAddress=\""+csrRequest.emailAddress+"\"/subjectAltName=\""+san+"\"
-
+      console.log("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj "+subj);
       var child = exec("openssl req -new -config etc/server.conf -out csrs/"+csrRequest.cn+".csr -keyout pkeys/"+csrRequest.cn+".key -subj "+subj,
         function (error, stdout, stderr) {
           console.log("exec done");

@@ -148,6 +148,7 @@ app.post('/verify', function (req, res, next) {
 
                 var v = new Verify(CAFile);
                 v.getCrlUrl(certPath, function(clrUrl){
+
                     if (clrUrl === undefined || clrUrl == null || clrUrl == "") {
                         //Delete cert file
                         fs.unlink(certPath, function (err) {
@@ -162,7 +163,7 @@ app.post('/verify', function (req, res, next) {
 
                     getCRL(clrUrl,
                         function (body) {
-                            console.log("BODY:\n" + body);
+                            //console.log("BODY:\n" + body);
 
                             var crlTempPath = createFilePath();
                             writeFile(crlTempPath, body,
@@ -184,7 +185,7 @@ app.post('/verify', function (req, res, next) {
 
                                                     } else {
                                                         console.log('Crl successfully deleted.');
-                                                        console.log("RESULT: " + result);
+                                                        //console.log("RESULT: " + result);
                                                         sendResponse(res, result.status, result.content);
                                                     }
                                                 });
@@ -223,7 +224,7 @@ app.post('/verifyocsp', function (req, res, next) {
 var bodyParserText = bodyParser.text({});
 app.post('/verifyraw', bodyParserText, function (req, res, next) {
     console.log("/VERIFY-RAW");
-    console.log(req.body);
+    //console.log(req.body);
 
     certPath = createFilePath();
     console.log("Write cert to: " + certPath);
@@ -233,26 +234,63 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
             console.log("Cert written and saved!");
 
             var v = new Verify(CAFile);
+            v.getCrlUrl(certPath, function(clrUrl){
 
-            //TODO add crl stuff here!!!
+                if (clrUrl === undefined || clrUrl == null || clrUrl == "") {
+                    //Delete cert file
+                    fs.unlink(certPath, function (err) {
+                        if (err) {
+                            next("Could not get the CRL Url from the Certificate! And could not remove the Certificate! ->" + err);
+                        } else {
+                            next("Could not get the CRL Url from the Certificate!");
+                        }
+                    });
+                    return;
+                }
 
-            v.verify(certPath, crlPath, function (result) {
-                fs.unlink(certPath, function (err) {
-                    if (err) {
+                getCRL(clrUrl,
+                    function (body) {
+                        //console.log("BODY:\n" + body);
+
+                        var crlTempPath = createFilePath();
+                        writeFile(crlTempPath, body,
+                            function () {
+                                //console.log("CRL saved in " + crlTempPath);
+
+                                v.verify(certPath, crlTempPath, function (result) {
+                                    //Delete Cert Temp File
+                                    fs.unlink(certPath, function (err) {
+                                        if (err) {
+                                            next(err);
+                                        } else {
+                                            console.log('Cert successfully deleted.');
+
+                                            //Delete Crl Temp File
+                                            fs.unlink(crlTempPath, function (err) {
+                                                if (err) {
+                                                    next(err);
+
+                                                } else {
+                                                    console.log('Crl successfully deleted.');
+                                                    //console.log("RESULT: " + result);
+                                                    sendResponse(res, result.status, result.content);
+                                                }
+                                            });
+                                        }
+                                    });
+                                })
+                                //FIXME without unlink only!
+                                //res.end("thx for the fish!");
+                                //sendResponse(200, "Thx for the File!");
+                            },
+                            function (err) {
+                                next(err);
+                            });
+                    },
+                    function (err) {
                         next(err);
-
-                    } else {
-                        console.log('Cert successfully deleted.');
-
-                        console.log("result: " + result);
-                        //res.end(result);
-                        sendResponse(res, result.status, result.content);
-                    }
-                });
-            })
-            //FIXME without unlink only!
-            //res.end("thx for the fish!");
-            //sendResponse(200, "Thx for the Text!");
+                    });
+            });
         },
         function (err) {
             next(err);

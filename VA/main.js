@@ -15,7 +15,7 @@ var cron = require('cron');
 
 //##################################################################################################################VARS
 var certPathPrefix = __dirname + '/private/certs/';
-var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem"   //__dirname + "/private/ca-chain.cert.pem";
+var CAFile = "../CA/intermediate/certs/ca-chain.cert.pem";   //__dirname + "/private/ca-chain.cert.pem";
 var CRLfile = __dirname + "/private/"; //TODO look for the CRL file
 //var CAPath = "../CA2/openssltest/ca/intermediate";
 

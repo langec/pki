@@ -23,17 +23,33 @@ function Verify(CAfile,CACRL) {
 }
 
 // Functions |--------------------------------------------------
+Verify.prototype.getCrlUrl = function(cert){
+    var progCall = 'openssl x509 -in \"' + cert + '\" -noout -text';
+    console.log(progCall);  //FIXME: DEBUG
+
+    this.childProcess = exec(progCall , function (error, stdout, stderr) {
+        var lines = stdout.toString().split('\n');
+        var uri = ""
+        for(var i = 0;i < lines.length;i++){
+            if(lines[i].search("Full Name:") != -1){
+                uri = lines[++i].trim().replace("URI:", "");
+                break;
+            }
+        }
+        return uri;
+    });
+};
+
 /**
  *  This function performs an verification of a certificate (*.pem) by using the openssl verify command
  *
  * @param cert - path to the Certificate in .pem format
  * @param callback - function which will be called after verification to send the results back to the client
  */
-Verify.prototype.verify = function (cert, callback) {
-    // TODO: Add the CRL
-    var progCall = 'openssl verify -CAfile \"' + this.caFilePath + '\" \"' + cert + '\"';
+Verify.prototype.verify = function (cert, crlpath, callback) {
+    var progCall = 'openssl verify -crl_check -CRLfile \"'+ crlpath +'\" -CAfile \"' + this.caFilePath + '\" \"' + cert + '\"';
 
-    console.log(progCall);  //FIXME: DEBUG
+    console.log(progCall);
     this.childProcess = exec(progCall , function (error, stdout, stderr) {
         var  jsonResult = {
             'status': 0,

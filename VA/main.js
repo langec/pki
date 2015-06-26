@@ -18,7 +18,13 @@ var http = require('http');
 
 //##################################################################################################################VARS
 var certPathPrefix = __dirname + '/private/certs/';
+<<<<<<< HEAD
+var CAFile = "../CA/intermediate/certs/ca-chain.cert.pem";   //__dirname + "/private/ca-chain.cert.pem";
+var CRLfile = __dirname + "/private/"; //TODO look for the CRL file
+//var CAPath = "../CA2/openssltest/ca/intermediate";
+=======
 var CAFile = "../CA2/openssltest/ca/intermediate/certs/ca-chain.cert.pem"   //__dirname + "/private/ca-chain.cert.pem";
+>>>>>>> 1151a5bb0ec2b191f3cce0403655328790b93546
 
 var PORT = 6600;
 var IP = "localhost";

@@ -1,6 +1,7 @@
 /**
  * TODO: https connection
  * TODO: real response(ok, bad, unknown)
+ * TODO: CRL getRequest
  */
 
 //###############################################################################################################REQUIRE
@@ -11,7 +12,7 @@ var fs = require('fs-extra');       //File System - for file manipulation
 var Random = require('random-js');
 var crypto = require('crypto');
 var Verify = require("./verification");
-var cron = require('cron');
+//var cron = require('cron');
 
 //##################################################################################################################VARS
 var certPathPrefix = __dirname + '/private/certs/';
@@ -22,7 +23,7 @@ var CRLfile = __dirname + "/private/"; //TODO look for the CRL file
 var PORT = 6600;
 var IP = "localhost";
 
-var cronJob = cron.job("*/10 * * * * *", updateJob); //debug mode all 5 seks
+//var cronJob = cron.job("*/10 * * * * *", updateJob); //debug mode all 5 seks
 //var cronJob = cron.job("* */30 * * * *", updateJob); //realMode all 30mins
 
 var app = express();

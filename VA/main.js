@@ -196,5 +196,5 @@ app.use(function (err, req, res, next) {
 //##########################################################################################################SERVER-START
 app.listen(PORT, IP);
 console.log("\nVA-Server running on " + IP + ":" + PORT);
-cronJob.start();
+//cronJob.start();
 console.log("CA-RootCert + CRL Job started...");

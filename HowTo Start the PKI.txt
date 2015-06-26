@@ -24,8 +24,8 @@
 	chrome.exe --disable-web-security
 
 
-7. Im ordner "validation" index.html ausführen; ist jetzt auch unter http://localhost:3300/ erreichbar
+7. Im ordner "validation" index.html ausführen; ist jetzt auch unter http://localhost:4400/ erreichbar
 
-8. Im ordner "registration" index.html ausführen; ist jetzt auch unter http://localhost:4400/ erreichbar
+8. Im ordner "registration" index.html ausführen; ist jetzt auch unter http://localhost:3300/ erreichbar
 
 9. Chrome: strg+shift+j --> Console

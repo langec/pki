@@ -40,6 +40,8 @@ Verify.prototype.getCrlUrl = function(cert, callback){
         if(stderr != ""){
             console.log("ERROR-getCrlUrl: " + stderr);
         }
+
+        console.log("CRL-URL:" + url)
         callback(url);
     });
 };
@@ -60,7 +62,7 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
             'content':""
         };
 
-        if (error != null) {
+        if (error != null && error.code != 2) {
             // FIXME: Was soll passieren, wenn es kracht ?
             jsonResult.status = 404;
             jsonResult.content = error;

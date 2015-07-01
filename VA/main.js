@@ -50,7 +50,7 @@ function sendResponse(res, status, content) {
 
     console.log("Response(" + status + "): " + content);
     res.writeHead(status, {"Content-type": "text/plain"});
-    res.end(content);
+    res.end("" + content);
 }
 
 function getCRL(url, success, error) {

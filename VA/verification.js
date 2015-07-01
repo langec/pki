@@ -36,6 +36,10 @@ Verify.prototype.getCrlUrl = function(cert, callback){
                 break;
             }
         }
+
+        if(stderr != ""){
+            console.log("ERROR-getCrlUrl: " + stderr);
+        }
         callback(url);
     });
 };

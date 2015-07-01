@@ -8,7 +8,9 @@ var mongojs = require('mongojs');
 var db = mongojs('registration',['requests']);
 var http = require('http');
 var csrCfgFile = fs.readFileSync('./etc/server.conf');
+csrCfgFile += "subjectAltName          = @alt_names\n\n[alt_names]\n";
 var exec = require('child_process').exec;
+
 
 //alle get-requests an den server fangen
 app.get('/*', function (req, res) {
@@ -122,7 +124,8 @@ function createCSR(csrRequest, res){
   
   //san feld aufbauen
   var san;
-  if(csrRequest.sans){
+  if(csrRequest.sans.length != 0){
+    console.log('request has san(s)');
     san = '';
     for (var i = 0; i < csrRequest.sans.length; i++) {
         san += csrRequest.sans[i].sanID + " = " + csrRequest.sans[i].san + "\n";

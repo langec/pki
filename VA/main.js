@@ -114,7 +114,7 @@ function saveFile(path, file, cbClose, cbErr) {
 //Write File
 function writeFile(path, content, cb, cbErr) {
     //console.log("path: " + path + "\ncontent: " + content);
-    console.log("CONTENT:\n" + content);
+   
     fs.writeFile(path, content, function (err) {
         if (err) {
             cbErr(err);
@@ -162,8 +162,6 @@ function checkCert(req, res, next, certPath) {
                                     next("ERROR: " + err);
                                 } else {
                                     console.log('Cert successfully deleted.');
-                                    sendResponse(res, result.status, result.content);
-                                    return;
 
                                     //Delete Crl Temp File
                                     fs.unlink(crlTempPath, function (err) {

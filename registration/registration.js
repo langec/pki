@@ -4,14 +4,17 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 
 //https
-/*
 var https = require('https');
-var key = fs.readFileSync('./ssl/key.pem');
-var cert = fs.readFileSync('./ssl/cert.pem');
+//var key = fs.readFileSync('./ssl/registration.ifm.pki.key');
+//var cert = fs.readFileSync('./ssl/registration.ifm.pki.crt');
+
+var key = fs.readFileSync('./ssl/localhost.key');
+var cert = fs.readFileSync('./ssl/localhost.crt');
 var https_options = {
     key: key,
     cert: cert
-};*/
+};
+console.log(https_options);
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -70,7 +73,8 @@ app.post('/', function (req, res) {
 });
 
 //server starten
-var server = app.listen(3300, function () {
+//var server = app.listen(3300, function () {
+var server = https.createServer(https_options, app).listen(3300,function(){
   var host = server.address().address;
   var port = server.address().port;
   console.log('Registration app listening at http://%s:%s', host, port);

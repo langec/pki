@@ -17,10 +17,10 @@ angular.module('reg-ng', [])
       
       console.log($scope.error.length);
       if($scope.error.length == 0){
-        
-      //formulardaten an registration.js server posten
+        //formulardaten an registration.js server posten
         console.log('sending registration request');
-        $http.post("http://localhost:3300/", $scope.data).//"{request: "+$scope.request + "}"
+        
+        $http.post("https://localhost:3300/", $scope.data).//"{request: "+$scope.request + "}"
       
         success(function(data, status, headers, config) {
           console.log("registration request send: " + data );

@@ -1,14 +1,45 @@
 <html ng-app="validation-ng">
 <head>
   <meta charset="utf8" />
-  <title>AngularJS Tutorial</title>
+  <title>RA - Validation</title>
 </head>
 <body>
   <ol ng-controller="validationForm">
     <li ng-repeat="request in requests">
-      {{request}}<br>
+      
+      Country (C):<br/>
+      <input type="text" ng-disabled=true ng-model="request.c"></input><br/>
+      
+      State (ST):<br/>
+      <input type="text" ng-disabled=true ng-model="request.st"></input><br/>
+      
+      Location (L):<br/>
+      <input type="text" ng-disabled=true ng-model="request.l"></input><br/>
+      
+      Organization (O):<br/>
+      <input type="text" ng-disabled=true ng-model="request.o"></input><br/>
+      
+      Organizational Unit (OU):<br/>
+      <input type="text" ng-disabled=true ng-model="request.ou"></input><br/>
+      
+      Common Name (CN):<br/>
+      <input type="text" ng-disabled=true ng-model="request.cn"></input><br/>
+      
+      Contact EMail Address (emailAddress):<br/>
+      <input type="text" ng-disabled=true ng-model="request.emailAddress"></input><br/>
+      <br/>
+       
+      <label ng-if="san">SANs:</label><br/>
+      <ol>
+        <li ng-repeat="san in request.sans">
+          <input ng-disabled=true ng-model="san.san"/><br/>
+        </li>
+      </ol>
+      <br/>      
+      
       <button ng-click="approve(request)">Freigeben</button>
       <button ng-click="reject(request)">Abweisen</button>
+      <hr/>
     </li>
   </ol>   
   <script src="angular.min.js"></script>

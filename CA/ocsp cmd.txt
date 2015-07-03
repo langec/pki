@@ -1,0 +1,3 @@
+openssl ocsp -index index.txt -port 127.0.0.1:8081 -rsigner ../certs/ca.cert.pem -rkey ../private/ca.key.pem -CA certs/intermediate.cert.pem -text -out log.txt
+
+openssl ocsp -CAfile certs/intermediate.cert.pem -issuer certs/intermediate.cert.pem -cert certs/1435915531197___ffff_127.0.0.1.cert.pem -url http://localhost:8081 -resp_text

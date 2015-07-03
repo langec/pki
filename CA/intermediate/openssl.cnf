@@ -18,6 +18,7 @@ RANDFILE          = $dir/private/.rand
 # The root key and root certificate.
 private_key       = $dir/private/intermediate.key.pem
 certificate       = $dir/certs/intermediate.cert.pem
+copy_extensions   = copy
 
 # For certificate revocation lists.
 crlnumber         = $dir/crlnumber
@@ -91,6 +92,7 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
 basicConstraints = critical, CA:true
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+extendedKeyUsage = critical, OCSPSigning
 
 [ v3_intermediate_ca ]
 # Extensions for a typical intermediate CA (`man x509v3_config`).
@@ -117,9 +119,11 @@ nsComment = "OpenSSL Generated Server Certificate"
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
-extendedKeyUsage = serverAuth
+extendedKeyUsage = serverAuth,OCSPSigning
 # This is the URI to the CRL, may need to be changed if port or address changes!!! :)
-crlDistributionPoints = URI:http://localhost:8080/crl
+#crlDistributionPoints = URI:http://localhost:8080/crl
+#ocsp server uri, wird im zertifikat abgelegt
+authorityInfoAccess = OCSP;URI:http://localhost:8080
 
 [ crl_ext ]
 # Extension for CRLs (`man x509v3_config`).

@@ -206,10 +206,10 @@ function checkCertOCSP(req, res, next, certPath){
             fs.unlink(certPath, function (err) {
                 if (err) {
                     console.log("checkCertOCSP::Err01");
-                    next("Could not get the CRL Url from the Certificate! And could not remove the Certificate! ->" + err);
+                    next("Could not get the OCSP Url from the Certificate! And could not remove the Certificate! ->" + err);
                 } else {
                     console.log("checkCertOCSP::Err02");
-                    next("Could not get the CRL Url from the Certificate!");
+                    next("Could not get the OCSP Url from the Certificate!");
                 }
             });
             return;

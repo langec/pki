@@ -23,25 +23,43 @@ function Verify(CAfile,CACRL) {
 }
 
 // Functions |--------------------------------------------------
-Verify.prototype.getCrlUrl = function(cert, callback){
+Verify.prototype.getCrlUrl = function(cert, mode, callback){
     var progCall = 'openssl x509 -in \"' + cert + '\" -noout -text';
     console.log(progCall);  //FIXME: DEBUG
 
     var url ="";
     this.childProcess = exec(progCall , function (error, stdout, stderr) {
         var lines = stdout.toString().split('\n');
+        var endreached = false;
+
         for(var i = 0;i < lines.length;i++){
-            if(lines[i].search("Full Name:") != -1){
-                url = lines[++i].trim().replace("URI:", "");
+            switch (mode){
+                case 0: // CRL
+                    if(lines[i].search("Full Name:") != -1){
+                        url = lines[++i].trim().replace("URI:", "");
+                        endreached = true;
+                    }
+                    break;
+
+                case 1: //FIXME: OCSP
+                    if(lines[i].search("TODO") != -1){
+                        url = lines[++i].trim().replace("URI:", "");
+                        endreached = true;
+                    }
+                    break;
+            }
+
+            // found entry
+            if (endreached){
                 break;
             }
         }
 
         if(stderr != ""){
-            console.log("ERROR-getCrlUrl: " + stderr);
+            console.log("ERROR-getCrlUrl Mode: "+mode+" " + stderr);
         }
 
-        console.log("CRL-URL:" + url)
+        console.log("found URL:" + url)
         callback(url);
     });
 };
@@ -71,7 +89,7 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
             return;
         }
 
-        var resultArray = stdout.toString().split("/");
+        var resultArray = stdout.toString().trim().split(":");
         var result = resultArray[resultArray.length - 1];
 
         if (result.length == 0){
@@ -90,5 +108,47 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
         }
     });
 };
+
+
+Verify.prototype.verifyOcsp = function(cert, callback){
+    var url = "";
+    var progCall = 'openssl ocsp -issuer \"'+cert +'\" -nonce -CAfile \"' +this.caFilePaths+ '\"  -url \"' +url+ '\"';
+    console.log(progCall);  //FIXME: DEBUG
+
+    this.childProcess = exec(progCall , function (error, stdout, stderr) {
+        var  jsonResult = {
+            'status': 0,
+            'content':""
+        };
+
+        var errMsg = stderr.toString();
+        if (!errMsg ) {
+            // FIXME: Was soll passieren, wenn es kracht ?
+            jsonResult.status = 404;
+            jsonResult.content = error;
+
+            console.log("ERROR-verifyOcsp: " + errMsg);
+        }
+
+        var resultArray = stdout.toString().trim().split(":");
+        var result = resultArray[resultArray.length - 1];
+
+        if (result.length == 0){
+            jsonResult.status = 404;
+            // FIXME: only for debug
+            jsonResult.content = errMsg;
+
+            callback(jsonResult);
+
+        }else {
+            // FIXME: Welche infos sollen an den client gehen? Reicht der Status zB "OK"
+            jsonResult.status = 200;
+            jsonResult.content = result;
+            console.log("Result: " + result );
+            callback(jsonResult);
+        }
+    });
+};
+
 
 module.exports = Verify;

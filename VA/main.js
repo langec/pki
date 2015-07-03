@@ -1,7 +1,6 @@
 /**
  * TODO: https connection
  * TODO: real response(ok, bad, unknown)
- * TODO: get CA Certificate
  * TODO: OCSP?
  */
 
@@ -114,7 +113,7 @@ function saveFile(path, file, cbClose, cbErr) {
 //Write File
 function writeFile(path, content, cb, cbErr) {
     //console.log("path: " + path + "\ncontent: " + content);
-    console.log("CONTENT:\n" + content);
+   
     fs.writeFile(path, content, function (err) {
         if (err) {
             cbErr(err);
@@ -126,19 +125,20 @@ function writeFile(path, content, cb, cbErr) {
 
 //The logical Brain of the checking
 function checkCert(req, res, next, certPath) {
-    console.log("Cert saved!");
+    console.log("checkCert");
 
     var v = new Verify(CAFile);
-    v.getCrlUrl(certPath, function (clrUrl) {
+    var mode = 0;
+    v.getCrlUrl(certPath, mode,  function (clrUrl) {
 
         if (clrUrl === undefined || clrUrl == null || clrUrl == "") {
             //Delete cert file
             fs.unlink(certPath, function (err) {
                 if (err) {
-                    console.log("Err7");
+                    console.log("checkCert::Err01");
                     next("Could not get the CRL Url from the Certificate! And could not remove the Certificate! ->" + err);
                 } else {
-                    console.log("Err6");
+                    console.log("checkCert::Err02");
                     next("Could not get the CRL Url from the Certificate!");
                 }
             });
@@ -158,17 +158,15 @@ function checkCert(req, res, next, certPath) {
                             //Delete Cert Temp File
                             fs.unlink(certPath, function (err) {
                                 if (err) {
-                                    console.log("Err5");
+                                    console.log("checkCert::Err03");
                                     next("ERROR: " + err);
                                 } else {
                                     console.log('Cert successfully deleted.');
-                                    sendResponse(res, result.status, result.content);
-                                    return;
 
                                     //Delete Crl Temp File
                                     fs.unlink(crlTempPath, function (err) {
                                         if (err) {
-                                            console.log("Err4");
+                                            console.log("checkCert::Err04");
                                             next("ERROR: " + err);
 
                                         } else {
@@ -185,16 +183,66 @@ function checkCert(req, res, next, certPath) {
                         //sendResponse(200, "Thx for the File!");
                     },
                     function (err) {
-                        console.log("Err3");
+                        console.log("checkCert::Err05");
                         next("ERROR: " + err);
                     });
             },
             function (err) {
-                console.log("Err2");
+                console.log("checkCert::Err06");
                 next("ERROR: " + err);
             });
     });
 }
+
+function checkCertOCSP(req, res, next, certPath){
+    console.log("checkCertOCSP");
+
+    var v = new Verify(CAFile);
+    var mode = 1;
+    v.getCrlUrl(certPath, mode, function (ocspUrl) {
+
+        if (ocspUrl === undefined || ocspUrl == null || ocspUrl == "") {
+            //Delete cert file
+            fs.unlink(certPath, function (err) {
+                if (err) {
+                    console.log("checkCertOCSP::Err01");
+                    next("Could not get the OCSP Url from the Certificate! And could not remove the Certificate! ->" + err);
+                } else {
+                    console.log("checkCertOCSP::Err02");
+                    next("Could not get the OCSP Url from the Certificate!");
+                }
+            });
+            return;
+        }
+
+        v.verifyOcsp(certPath, ocspUrl, function (result) {
+            //Delete Cert Temp File
+            fs.unlink(certPath, function (err) {
+                if (err) {
+                    console.log("checkCertOCSP::Err03");
+                    next("ERROR: " + err);
+                } else {
+                    console.log('Cert successfully deleted.');
+
+                    //Delete Crl Temp File
+                    fs.unlink(crlTempPath, function (err) {
+                        if (err) {
+                            console.log("checkCertOCSP::Err04");
+                            next("ERROR: " + err);
+
+                        } else {
+                            console.log('Crl successfully deleted.');
+                            //console.log("RESULT: " + result);
+                            sendResponse(res, result.status, result.content);
+                        }
+                    });
+                }
+            });
+        })
+
+    });
+}
+
 
 //################################################################################################################ROUTES
 app.get('/', function (req, res, next) {
@@ -222,7 +270,7 @@ app.post('/verify', function (req, res, next) {
             },
             function (err) {
                 //Error
-                console.log("Err1");
+                console.log("/verify::Err1");
                 next("ERROR: " + err);
             })
     });
@@ -231,9 +279,25 @@ app.post('/verify', function (req, res, next) {
 
 //VERIFYOCSP FILE
 app.post('/verifyocsp', function (req, res, next) {
-    console.log("/verifyocsp");
-    console.log("NYI!");
-    sendResponse(res, 200, "OCSP not yet implemented!");
+    console.log("/VERIFYOCSP");
+
+    req.pipe(req.busboy);
+    req.busboy.on('file', function (fieldname, file, filename) {
+
+        var certPath = createFilePath();
+        //console.log("Save cert under: " + certPath)
+
+        saveFile(certPath, file,
+            function () {
+                //Success
+                checkCertOCSP(req, res, next, certPath)
+            },
+            function (err) {
+                //Error
+                console.log("/verifyocsp::Err1");
+                next("ERROR: " + err);
+            })
+    });
 });
 
 //VERIFY RAW STRING
@@ -248,70 +312,10 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
     writeFile(certPath, req.body,
         function () {
             console.log("Cert written and saved!");
-
             checkCert(req, res, next, certPath);
-
-            /*
-             var v = new Verify(CAFile);
-             v.getCrlUrl(certPath, function (clrUrl) {
-
-             if (clrUrl === undefined || clrUrl == null || clrUrl == "") {
-             //Delete cert file
-             fs.unlink(certPath, function (err) {
-             if (err) {
-             next("Could not get the CRL Url from the Certificate! And could not remove the Certificate! ->" + err);
-             } else {
-             next("Could not get the CRL Url from the Certificate!");
-             }
-             });
-             return;
-             }
-
-             getCRL(clrUrl,
-             function (body) {
-             //console.log("BODY:\n" + body);
-
-             var crlTempPath = createFilePath();
-             writeFile(crlTempPath, body,
-             function () {
-             //console.log("CRL saved in " + crlTempPath);
-
-             v.verify(certPath, crlTempPath, function (result) {
-             //Delete Cert Temp File
-             fs.unlink(certPath, function (err) {
-             if (err) {
-             next("ERROR: " + err);
-             } else {
-             console.log('Cert successfully deleted.');
-
-             //Delete Crl Temp File
-             fs.unlink(crlTempPath, function (err) {
-             if (err) {
-             next("ERROR: " + err);
-
-             } else {
-             console.log('Crl successfully deleted.');
-             //console.log("RESULT: " + result);
-             sendResponse(res, result.status, result.content);
-             }
-             });
-             }
-             });
-             })
-             //FIXME without unlink only!
-             //res.end("thx for the fish!");
-             //sendResponse(200, "Thx for the File!");
-             },
-             function (err) {
-             next("ERROR: " + err);
-             });
-             },
-             function (err) {
-             next("ERROR: " + err);
-             });
-             });*/
         },
         function (err) {
+            console.log("/verifyraw::Err1");
             next("ERROR: " + err);
         })
 });
@@ -320,8 +324,19 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
 bodyParserText = bodyParser.text({});
 app.post('/verifyrawocsp', function (req, res, next) {
     console.log("/verifyrawocsp");
-    console.log("NYI!");
-    sendResponse(res, 200, "OCSP not yet implemented!");
+
+    var certPath = createFilePath();
+    console.log("Write cert to: " + certPath);
+
+    writeFile(certPath, req.body,
+        function () {
+            console.log("Cert written and saved!");
+            checkCertOCSP(req, res, next, certPath);
+        },
+        function (err) {
+            console.log("/verifyrawocsp::Err1");
+            next("ERROR: " + err);
+        })
 });
 
 app.use(function (err, req, res, next) {

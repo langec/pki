@@ -38,6 +38,9 @@
     <label ng-if="san">SANs:</label><br/>
     <ol>
       <li ng-repeat="san in data.registrationRequest.sans">
+        <select ng-model="san.sanType">
+          <option ng-repeat="type in sanTypes" value="{{type}}">{{type}}</option>
+        </select>
         <input ng-model="san.san"/><br/>
       </li>
     </ol>

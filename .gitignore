@@ -1,2 +1,7 @@
 .idea/
 VA/node_modules/
+CA/intermediate/certs
+CA/intermediate/index.txt
+CA/intermediate/index.txt.old
+CA/intermediate/serial.txt
+CA/intermediate/serial.txt.old

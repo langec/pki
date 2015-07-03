@@ -40,6 +40,7 @@ Verify.prototype.getCrlUrl = function(cert, mode, callback){
                         endreached = true;
                     }
                     break;
+
                 case 1: //FIXME: OCSP
                     if(lines[i].search("TODO") != -1){
                         url = lines[++i].trim().replace("URI:", "");
@@ -58,7 +59,7 @@ Verify.prototype.getCrlUrl = function(cert, mode, callback){
             console.log("ERROR-getCrlUrl Mode: "+mode+" " + stderr);
         }
 
-        console.log("CRL-URL:" + url)
+        console.log("found URL:" + url)
         callback(url);
     });
 };
@@ -88,7 +89,7 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
             return;
         }
 
-        var resultArray = stdout.toString().split("/");
+        var resultArray = stdout.toString().trim().split(":");
         var result = resultArray[resultArray.length - 1];
 
         if (result.length == 0){
@@ -129,7 +130,7 @@ Verify.prototype.verifyOcsp = function(cert, callback){
             console.log("ERROR-verifyOcsp: " + errMsg);
         }
 
-        var resultArray = stdout.toString().split("/");
+        var resultArray = stdout.toString().trim().split(":");
         var result = resultArray[resultArray.length - 1];
 
         if (result.length == 0){

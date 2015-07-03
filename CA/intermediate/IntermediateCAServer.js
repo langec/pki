@@ -127,7 +127,7 @@ app.post('/certificateRequests', function (req, res) {
         {
             console.log("verifying cert against ca chain");
             //verify cert against ca chain
-            child = exec("openssl verify -CAfile certs/ca-chain.cert.pem certs/"+certName, function (error, stdout, stderr) {
+            child = exec("openssl verify -CAfile ca-chain.cert.pem certs/"+certName, function (error, stdout, stderr) {
                 //console.log('stdout: ' + stdout);
                 //console.log('stderr: ' + stderr);
                 if (error !== null) 

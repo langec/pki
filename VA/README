@@ -18,8 +18,8 @@ Folgende Request nimmt der Server entgegen:
     POST
         /verify         Body:File   Response:Text
         /verifyraw      Body:Text   Response:Text
-        /verifyocsp     NYI
-        /verifyrawocsp  NYI
+        /verifyocsp     Body:File   Response:Text
+        /verifyrawocsp  Body:Text   Response:Text
         
 In /verify wird die cert.pem Datei im Body übergeben.
 In /verifyraw wird das Certificate als Raw Text übergeben.
@@ -27,11 +27,13 @@ In /verifyraw wird das Certificate als Raw Text übergeben.
 Arbeitsweise:
 Der Server wartet auf Requests. Kommt ein Request rein, so wird der Inhalt zwischengespeichert (in ./private/certs/<HASH>.pem). 
 Bei /verify wird die Datei direkt gespeichert.
-Bei /verifyraw wird der Content in eine Datei geschrieben. 
+Bei /verifyraw wird der Content in eine Datei geschrieben.
+Die OCSP Requests arbeiten genau so, wie ihre CRL Counterparts.
 Auf diesen Dateien wird das openssl verify ausgeführt (CAFile und CAPath können in der main.js angepasst werden).
 Bei Rückmeldung des Moduls, wird die temporäre Datei (<HASH>.pem) gelöscht und eine Response zurückgesendet.
 
 
 
 Changelog:
+1.1.0       OCSP Support hinzugefügt, nicht vollständig getestet
 1.0.2       CRL Support hinzugefügt, OCSP Route definiert

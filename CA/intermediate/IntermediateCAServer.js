@@ -5,6 +5,9 @@ var fs = require('fs');
 
 var app = express();
 
+var OCSPprocess = undefined;
+var restartOCSPserver = false;
+
 app.enable('trust proxy');
 
 app.use(bodyParser.text({})); 
@@ -78,11 +81,50 @@ app.post('/revokeCert', function (req, res) {
 					//success, yaaaay! :)
 					res.writeHead(200, {"Content-type" : "text/plain"});
                     res.end("Certificate with ID " + certId + " successfully revoked.");
+					
+					//restart the OCSP process
+					if(OCSPprocess !== undefined)
+					{
+						//kill running process first
+						restartOCSPserver = true;
+						OCSPprocess.kill();
+					}
+					else
+					{
+						startOCSPServer();
+					}
 				}
 			});
 		}
 	});
 });
+
+function startOCSPServer()
+{
+	OCSPprocess = exec("openssl ocsp -index index.txt -port 127.0.0.1:8081 -rsigner ../certs/ca.cert.pem -rkey ../private/ca.key.pem -CA intermediate.cert.pem -text", 
+		function (error, stdout, stderr) 
+		{
+			if (error !== null) 
+			{
+				console.log("error while starting OCSP server: " + error);
+			}
+			else
+			{
+				console.log("OCSP server started.");
+			}
+		}
+	);
+	
+	OCSPprocess.on('close', function (code, signal) {
+		console.log('OCSP server terminated due to receipt of signal '+signal);
+		if(restartOCSPserver === true)
+		{
+			startOCSPServer();
+			//this is to avoid an endless restarting loop
+			restartOCSPserver = false;
+		}	
+	});
+}
 
 app.post('/certificateRequests', function (req, res) {
     console.log("Certificate Request Received!");
@@ -127,7 +169,7 @@ app.post('/certificateRequests', function (req, res) {
         {
             console.log("verifying cert against ca chain");
             //verify cert against ca chain
-            child = exec("openssl verify -CAfile certs/ca-chain.cert.pem certs/"+certName, function (error, stdout, stderr) {
+            child = exec("openssl verify -CAfile ca-chain.cert.pem certs/"+certName, function (error, stdout, stderr) {
                 //console.log('stdout: ' + stdout);
                 //console.log('stderr: ' + stderr);
                 if (error !== null) 

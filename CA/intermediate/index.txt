@@ -1,4 +1,0 @@
-V	160705083005Z		1015	unknown	/C=de/ST=asdas/L=dasd/O=asdasd/OU=asd/CN=asdasd
-V	160705120517Z		1016	unknown	/C=de/ST=nrw/L=minden/O=fh bielefeld/OU=mif pki/CN=registration.pki.de/emailAddress=test@test.de
-V	160710083853Z		1017	unknown	/C=de/ST=NRW/L=Minden/O=FH Bielefeld/OU=IFM PKI/CN=registration.ifm.pki/emailAddress=registration@ifm.pki
-V	160710085926Z		1018	unknown	/C=de/ST=nrw/L=minden/O=fh bielefeld/OU=ifm pki/CN=localhost/emailAddress=test@web.de

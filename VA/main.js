@@ -127,7 +127,7 @@ function checkCert(req, res, next, certPath) {
     console.log("checkCert");
 
     var v = new Verify(CAFile);
-    var mode = 0;
+    var mode = 0; // mode 0 = CRL
     v.getCrlUrl(certPath, mode,  function (clrUrl) {
 
         if (clrUrl === undefined || clrUrl == null || clrUrl == "") {
@@ -197,7 +197,7 @@ function checkCertOCSP(req, res, next, certPath){
     console.log("checkCertOCSP");
 
     var v = new Verify(CAFile);
-    var mode = 1;
+    var mode = 1; // mode 1 = OCSP
     v.getCrlUrl(certPath, mode, function (ocspUrl) {
 
         if (ocspUrl === undefined || ocspUrl == null || ocspUrl == "") {
@@ -223,18 +223,7 @@ function checkCertOCSP(req, res, next, certPath){
                 } else {
                     console.log('Cert successfully deleted.');
 
-                    //Delete Crl Temp File
-                    fs.unlink(crlTempPath, function (err) {
-                        if (err) {
-                            console.log("checkCertOCSP::Err04");
-                            next("ERROR: " + err);
-
-                        } else {
-                            console.log('Crl successfully deleted.');
-                            //console.log("RESULT: " + result);
-                            sendResponse(res, result.status, result.content);
-                        }
-                    });
+                    sendResponse(res, result.status, result.content);
                 }
             });
         })

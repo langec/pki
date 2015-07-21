@@ -1,7 +1,6 @@
 /**
  * TODO: https connection
  * TODO: real response(ok, bad, unknown)
- * TODO: OCSP?
  */
 
 //###############################################################################################################REQUIRE
@@ -322,7 +321,7 @@ app.post('/verifyraw', bodyParserText, function (req, res, next) {
 
 //VERIFYOCSP RAW STRING
 bodyParserText = bodyParser.text({});
-app.post('/verifyrawocsp', function (req, res, next) {
+app.post('/verifyrawocsp', bodyParserText, function (req, res, next) {
     console.log("/verifyrawocsp");
 
     var certPath = createFilePath();

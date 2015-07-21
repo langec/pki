@@ -1,6 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var exec = require("child_process").exec, child;
+var exec = require("child_process").exec
+var child;
+var child_process = require("child_process");
 var fs = require('fs');
 
 var app = express();
@@ -78,9 +80,11 @@ app.post('/revokeCert', function (req, res) {
 				}
 				else
 				{
-					//success, yaaaay! :)
+					//success, yaaaay! :)			
 					res.writeHead(200, {"Content-type" : "text/plain"});
                     res.end("Certificate with ID " + certId + " successfully revoked.");
+					
+					console.log("certificate revoked! (re)starting OCSP...");
 					
 					//restart the OCSP process
 					if(OCSPprocess !== undefined)
@@ -101,20 +105,39 @@ app.post('/revokeCert', function (req, res) {
 
 function startOCSPServer()
 {
-	OCSPprocess = exec("openssl ocsp -index index.txt -port 127.0.0.1:8081 -rsigner ../certs/ca.cert.pem -rkey ../private/ca.key.pem -CA intermediate.cert.pem -text", 
-		function (error, stdout, stderr) 
+	
+	OCSPprocess = child_process.spawn("openssl" , /*["ocsp -index index.txt -port 127.0.0.1:8081 -rsigner ../certs/ca.cert.pem -rkey ../private/ca.key.pem -CA intermediate.cert.pem -text"]*/
+													["ocsp", "-index", "index.txt", "-port", "127.0.0.1:8081",  "-rsigner", "../certs/ca.cert.pem", "-rkey", "../private/ca.key.pem", "-CA", "intermediate.cert.pem", "-text"], 
 		{
-			if (error !== null) 
-			{
-				console.log("error while starting OCSP server: " + error);
-			}
-			else
-			{
-				console.log("OCSP server started.");
-			}
+			detached: true,
+			/*stdio: [
+			  'pipe', // pipe
+			  'pipe', // pipe child's stdout to parent
+			  'pipe' // pipe stderr, too.
+			]*/
 		}
 	);
 	
+	OCSPprocess.on('error', function (err) {
+		console.log('error while starting OCSP server: '+err);
+	});
+	
+	//get the password into the OCSP... unfortunately there is no -key parameter this time, so we are using an even dirtier hack! :D	
+	OCSPprocess.stderr.on('data', function (data) {
+		var stdoutString = data.toString();
+		
+		console.log("wtf2: " + stdoutString);
+		
+		if(stdoutString.indexOf("pass phrase") >= 0)
+		{
+			OCSPprocess.stdin.write('dieme1234\n', 'utf-8');
+			console.log("feeding server with pass phrase...");
+		}
+		
+		}
+	);
+
+	//try to restart the ocsp server once it gets terminated
 	OCSPprocess.on('close', function (code, signal) {
 		console.log('OCSP server terminated due to receipt of signal '+signal);
 		if(restartOCSPserver === true)

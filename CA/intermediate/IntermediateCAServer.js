@@ -109,8 +109,8 @@ function startOCSPServer()
 	OCSPprocess = child_process.spawn("openssl" , /*["ocsp -index index.txt -port 127.0.0.1:8081 -rsigner ../certs/ca.cert.pem -rkey ../private/ca.key.pem -CA intermediate.cert.pem -text"]*/
 													["ocsp", "-index", "index.txt", "-port", "127.0.0.1:8081",  "-rsigner", "../certs/ca.cert.pem", "-rkey", "../private/ca.key.pem", "-CA", "intermediate.cert.pem", "-text"], 
 		{
-			detached: true,
-			/*stdio: [
+			detached: true/*,
+			stdio: [
 			  'pipe', // pipe
 			  'pipe', // pipe child's stdout to parent
 			  'pipe' // pipe stderr, too.

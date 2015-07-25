@@ -230,7 +230,9 @@ app.post('/certificateRequests', function (req, res) {
     });
 });
 
-app.listen(8080);
+app.listen(8080, function () {
+  console.log('CA gestartet (Port: 8080)');
+});
 
 function handleError(res, err)
 {

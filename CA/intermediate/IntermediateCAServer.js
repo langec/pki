@@ -91,11 +91,11 @@ app.post('/revokeCert', function (req, res) {
 					{
 						//kill running process first
 						restartOCSPserver = true;
-						OCSPprocess.kill();
+						//OCSPprocess.kill();
 					}
 					else
 					{
-						startOCSPServer();
+						//startOCSPServer();
 					}
 				}
 			});
@@ -106,8 +106,7 @@ app.post('/revokeCert', function (req, res) {
 function startOCSPServer()
 {
 	
-	OCSPprocess = child_process.spawn("openssl" , /*["ocsp -index index.txt -port 127.0.0.1:8081 -rsigner ../certs/ca.cert.pem -rkey ../private/ca.key.pem -CA intermediate.cert.pem -text"]*/
-													["ocsp", "-index", "index.txt", "-port", "127.0.0.1:8081",  "-rsigner", "../certs/ca.cert.pem", "-rkey", "../private/ca.key.pem", "-CA", "intermediate.cert.pem", "-text"], 
+	OCSPprocess = child_process.spawn("openssl" , ["ocsp", "-index", "index.txt", "-port", "127.0.0.1:8081",  "-rsigner", "../certs/ca.cert.pem", "-rkey", "../private/ca.key.pem", "-CA", "intermediate.cert.pem", "-text"], 
 		{
 			detached: true,
 			/*stdio: [
@@ -130,7 +129,7 @@ function startOCSPServer()
 		
 		if(stdoutString.indexOf("pass phrase") >= 0)
 		{
-			OCSPprocess.stdin.write('dieme1234\n', 'utf-8');
+			//OCSPprocess.stdin.write('dieme1234\n');
 			console.log("feeding server with pass phrase...");
 		}
 		

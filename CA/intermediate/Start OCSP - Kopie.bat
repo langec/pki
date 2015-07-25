@@ -1,0 +1,1 @@
+openssl ocsp -index index.txt -port 127.0.0.1:8081  -rsigner ../certs/ca.cert.pem -rkey ../private/ca.key.pem -CA intermediate.cert.pem -text

@@ -16,9 +16,8 @@ var exec = require('child_process').exec;
  *
  * @constructor
  */
-function Verify(CAfile,CACRL) {
+function Verify(CAfile) {
     this.caFilePath = CAfile;
-    this.caCRL = CACRL;
     this.childProcess;
 }
 
@@ -42,8 +41,9 @@ Verify.prototype.getCrlUrl = function(cert, mode, callback){
                     break;
 
                 case 1: //FIXME: OCSP
-                    if(lines[i].search("TODO") != -1){
-                        url = lines[++i].trim().replace("URI:", "");
+                    if(lines[i].search("OCSP -") != -1){
+                        cleanline = lines[i].split("OCSP -")[1];
+                        url = cleanline.trim().replace("URI:", "");
                         endreached = true;
                     }
                     break;
@@ -83,7 +83,7 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
         if (error != null && error.code != 2) {
             // FIXME: Was soll passieren, wenn es kracht ?
             jsonResult.status = 404;
-            jsonResult.content = error;
+            jsonResult.content ="ERROR" +  error;
 
             callback(jsonResult);
             return;
@@ -95,7 +95,7 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
         if (result.length == 0){
             jsonResult.status = 404;
             // FIXME: only for debug
-            jsonResult.content = stderr.toString();
+            jsonResult.content = "ERROR: " + stderr.toString();
 
             callback(jsonResult);
 
@@ -110,9 +110,8 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
 };
 
 
-Verify.prototype.verifyOcsp = function(cert, callback){
-    var url = "";
-    var progCall = 'openssl ocsp -issuer \"'+cert +'\" -nonce -CAfile \"' +this.caFilePaths+ '\"  -url \"' +url+ '\"';
+Verify.prototype.verifyOcsp = function(cert, ocspUrl, callback){
+    var progCall = 'openssl ocsp -issuer \"'+cert +'\" -nonce -CAfile \"' +this.caFilePath+ '\"  -url \"' +ocspUrl+ '\"';
     console.log(progCall);  //FIXME: DEBUG
 
     this.childProcess = exec(progCall , function (error, stdout, stderr) {
@@ -123,9 +122,8 @@ Verify.prototype.verifyOcsp = function(cert, callback){
 
         var errMsg = stderr.toString();
         if (!errMsg ) {
-            // FIXME: Was soll passieren, wenn es kracht ?
             jsonResult.status = 404;
-            jsonResult.content = error;
+            jsonResult.content = "ERROR: " + error;
 
             console.log("ERROR-verifyOcsp: " + errMsg);
         }
@@ -135,8 +133,7 @@ Verify.prototype.verifyOcsp = function(cert, callback){
 
         if (result.length == 0){
             jsonResult.status = 404;
-            // FIXME: only for debug
-            jsonResult.content = errMsg;
+            jsonResult.content ="ERROR: " +  errMsg;
 
             callback(jsonResult);
 

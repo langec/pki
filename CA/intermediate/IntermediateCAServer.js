@@ -59,6 +59,15 @@ app.post('/revokeCert', function (req, res) {
 	}
 	
 	var certId = req.body;
+	/*var certId = "";
+	
+	try	{
+		certId = JSON.parse(req.body).ip;
+	}
+	catch (err) {
+		handleError(res, "Error while parsing JSON: " + err.message);
+	}*/
+	
 	if(certId.length < 4)
 	{
 		handleError(res, "Invalid post body. Body must contain certID (This is usually a four digit number, such as 1013.)");

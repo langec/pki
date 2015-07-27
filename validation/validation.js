@@ -183,7 +183,7 @@ function postToCa(request,data){
   console.log(data);
   //http-post header / optionen
   var caPostOptions = {
-    hostname: 'localhost',
+    hostname: 'h2418540.stratoserver.net',//localhost
     port: 8080,
     path: '/certificateRequests',
     method: 'POST',
@@ -197,21 +197,25 @@ function postToCa(request,data){
   var req = http.request(caPostOptions,function(res){
     //antwort der ca 
     console.log("response ca: " + res.statusCode);
-    
+    var caResponse;
     //ca schickt daten, kann in mehreren blöcken geschehen(theoretisch)
     var data;
     res.on('data', function(chunk){
       console.log("chunk: "+ chunk);
-      mail(request,chunk);
+      caResponse += chunk;
+      //mail(request,chunk);
       //verifyCert(chunk.toString());
     });
+    
     //fehler bei http-post
-    req.on('error', function(e){
+    res.on('error', function(e){
       console.log("error: " + e);
       return false;
     });
-    req.on('end', function () {
-      console.log('BODY: ' + data);
+    
+    res.on('end', function () {
+      console.log('end');
+      mail(caResponse);
       //verifyCert(data.toString());
     });
     

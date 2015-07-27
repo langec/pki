@@ -52,7 +52,7 @@ app.post('/revokeCert', function (req, res) {
 	var AUTHORIZED_IPS = ["37.120.163.132", "::ffff:212.201.135.142"];
 	var ip = getIP(req);
 	 
-	if(/*!ipIsLocalhost(ip)*/ !AUTHORIZED_IPS.contains(ip))
+	if(/*!ipIsLocalhost(ip)*/ AUTHORIZED_IPS.indexOf(ip) < 0)
 	{
 		handleError(res, "Certificate Revocation only allowed by " + AUTHORIZED_IPS + "! (IP was: " + ip + ")");
 		return;

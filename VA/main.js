@@ -332,5 +332,5 @@ app.use(function (err, req, res, next) {
 });
 
 //##########################################################################################################SERVER-START
-app.listen(PORT, IP);
+app.listen(PORT);
 console.log("\nVA-Server running on " + IP + ":" + PORT);

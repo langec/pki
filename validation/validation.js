@@ -198,7 +198,7 @@ function postToCa(request,data){
   var req = http.request(caPostOptions,function(res){
     //antwort der ca 
     console.log("response ca: " + res.statusCode);
-    var caResponse;
+    var caResponse = '';
     //ca schickt daten, kann in mehreren blöcken geschehen(theoretisch)
     var data;
     res.on('data', function(chunk){

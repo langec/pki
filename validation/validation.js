@@ -216,7 +216,7 @@ function postToCa(request,data){
     
     res.on('end', function () {
       console.log('end');
-      mail(caResponse);
+      mail(request,caResponse);
       //verifyCert(data.toString());
     });
     

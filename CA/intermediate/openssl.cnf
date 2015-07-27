@@ -122,9 +122,9 @@ authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth,OCSPSigning
 # This is the URI to the CRL, may need to be changed if port or address changes!!! :)
-#crlDistributionPoints = URI:http://localhost:8080/crl
+#crlDistributionPoints = URI:http://h2418540.stratoserver.net:8080/crl
 #ocsp server uri, wird im zertifikat abgelegt
-authorityInfoAccess = OCSP;URI:http://localhost:8081
+authorityInfoAccess = OCSP;URI:http://h2418540.stratoserver.net:8081
 
 [ crl_ext ]
 # Extension for CRLs (`man x509v3_config`).

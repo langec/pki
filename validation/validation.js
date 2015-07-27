@@ -11,6 +11,14 @@ var csrCfgFile = fs.readFileSync('./etc/server.conf');
 csrCfgFile += "subjectAltName          = @alt_names\n\n[alt_names]\n";
 var exec = require('child_process').exec;
 
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: 'pki.fhbielefeld@gmail.com',
+        pass: '123geheim'
+    }
+});
 
 //alle get-requests an den server fangen
 app.get('/*', function (req, res) {
@@ -128,7 +136,8 @@ function createCSR(csrRequest, res){
     console.log('request has san(s)');
     san = '';
     for (var i = 0; i < csrRequest.sans.length; i++) {
-        san += csrRequest.sans[i].sanID + " = " + csrRequest.sans[i].san + "\n";
+      console.log(csrRequest.sans[i]);
+        san += csrRequest.sans[i].sanType + " = " + csrRequest.sans[i].san + "\n";
     }
     console.log("setting san:\n" + san + "\n\n");
     fs.writeFileSync('./etc/san.conf', csrCfgFile + san);
@@ -157,7 +166,7 @@ function createCSR(csrRequest, res){
           if(!err){
             console.log("postToCa");
             //an ca schicken
-            postToCa(data);
+            postToCa(csrRequest,data);
           }else{
             console.log(err);
           }
@@ -169,12 +178,12 @@ function createCSR(csrRequest, res){
 }
 
 //schickt csr an ca
-function postToCa(data){
+function postToCa(request,data){
   console.log("posting csr to ca:");
   console.log(data);
   //http-post header / optionen
   var caPostOptions = {
-    hostname: 'localhost',
+    hostname: 'h2418540.stratoserver.net',//localhost
     port: 8080,
     path: '/certificateRequests',
     method: 'POST',
@@ -188,21 +197,26 @@ function postToCa(data){
   var req = http.request(caPostOptions,function(res){
     //antwort der ca 
     console.log("response ca: " + res.statusCode);
-    
+    var caResponse;
     //ca schickt daten, kann in mehreren blöcken geschehen(theoretisch)
     var data;
     res.on('data', function(chunk){
       console.log("chunk: "+ chunk);
-      verifyCert(chunk.toString());
+      caResponse += chunk;
+      //mail(request,chunk);
+      //verifyCert(chunk.toString());
     });
+    
     //fehler bei http-post
-    req.on('error', function(e){
+    res.on('error', function(e){
       console.log("error: " + e);
       return false;
     });
-    req.on('end', function () {
-      console.log('BODY: ' + data);
-      verifyCert(data.toString());
+    
+    res.on('end', function () {
+      console.log('end');
+      mail(caResponse);
+      //verifyCert(data.toString());
     });
     
   })
@@ -210,6 +224,35 @@ function postToCa(data){
   req.write(data);
   req.end();
   return true;
+}
+
+function mail(request, certificate){
+  
+  var mailOptions = {
+    from: 'PKI <pki.fhbielefeld@gmail.com>', // sender address
+    to: request.emailAddress, // list of receivers
+    subject: 'Zertifikat ' + request.cn, // Subject line
+    text: 'Hallo, Key eigentlich per Brief/Post', // plaintext body
+    html: '<b>Hallo, Key eigentlich per Brief/Post</b>', // html body
+    attachments: [
+        {   // utf-8 string as an attachment
+            filename: request.cn + '.crt',
+            content: certificate
+        },
+        {
+            filename: request.cn + '.key',
+            content: fs.readFileSync("./pkeys/"+request.cn+".key")
+        }]
+  };
+  
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, function(error, info){
+      if(error){
+          console.log(error);
+      }else{
+          console.log('Message sent: ' + info.response);
+      }
+  });
 }
 
 function verifyCert(data){

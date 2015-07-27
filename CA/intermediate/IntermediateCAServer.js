@@ -49,11 +49,12 @@ app.post('/revokeCert', function (req, res) {
 	console.log("Certificate Revocation Received!");
     console.log(req.body);
 	
+	var REQ_IP = "37.120.163.132";
 	var ip = getIP(req);
 	 
-	if(!ipIsLocalhost(ip))
+	if(/*!ipIsLocalhost(ip)*/ ip !== REQ_IP)
 	{
-		handleError(res, "Certificate Revocation only allowed by localhost! (IP was: " + ip + ")");
+		handleError(res, "Certificate Revocation only allowed by " + REQ_IP + "! (IP was: " + ip + ")");
 		return;
 	}
 	

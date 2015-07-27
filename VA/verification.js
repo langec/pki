@@ -111,8 +111,9 @@ Verify.prototype.verify = function (cert, crlUrl, callback) {
 
 
 Verify.prototype.verifyOcsp = function(cert, ocspUrl, callback){
-    var progCall = 'openssl ocsp -issuer \"'+cert +'\" -nonce -CAfile \"' +this.caFilePath+ '\"  -url \"' +ocspUrl+ '\"';
-    console.log(progCall);  //FIXME: DEBUG
+    //var progCall = 'openssl ocsp -issure \"' +this.caFilePath+ '\" -cert \"'+cert +'\" -text -url \"' +ocspUrl+ '\"';
+    //TODO intermidiate cert better path!
+    var progCall = 'openssl ocsp -CAfile \"' +this.caFilePath+ '\" -issuer \"./private/intermediate.cert.pem\" -cert \"'+cert +'\" -url \"' +ocspUrl+ '\"';
 
     this.childProcess = exec(progCall , function (error, stdout, stderr) {
         var  jsonResult = {
@@ -128,7 +129,7 @@ Verify.prototype.verifyOcsp = function(cert, ocspUrl, callback){
             console.log("ERROR-verifyOcsp: " + errMsg);
         }
 
-        var resultArray = stdout.toString().trim().split(":");
+        var resultArray = stdout.toString().trim().split(".pem");
         var result = resultArray[resultArray.length - 1];
 
         if (result.length == 0){
@@ -140,6 +141,7 @@ Verify.prototype.verifyOcsp = function(cert, ocspUrl, callback){
         }else {
             // FIXME: Welche infos sollen an den client gehen? Reicht der Status zB "OK"
             jsonResult.status = 200;
+            //jsonResult.content = result;
             jsonResult.content = result;
             console.log("Result: " + result );
             callback(jsonResult);

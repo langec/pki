@@ -184,6 +184,7 @@ function postToCa(request,data){
   //http-post header / optionen
   var caPostOptions = {
     hostname: 'h2418540.stratoserver.net',//localhost
+    // hostname: 'localhost',//localhost
     port: 8080,
     path: '/certificateRequests',
     method: 'POST',

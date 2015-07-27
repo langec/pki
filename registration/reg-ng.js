@@ -34,7 +34,8 @@ angular.module('reg-ng', [])
         }
         console.log($scope.data.registrationRequest.sans);
         
-        $http.post("https://localhost:3300/", $scope.data).//"{request: "+$scope.request + "}"
+        $http.post("https://v22014102454821167.yourvserver.net:3300/", $scope.data).//"{request: "+$scope.request + "}"
+        //$http.post("https://localhost:3300/", $scope.data).
       
         success(function(data, status, headers, config) {
           console.log("registration request send: " + data );

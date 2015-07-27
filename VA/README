@@ -1,5 +1,3 @@
-Version 1.0.2 der VA
-
 WICHTIG!
 openssl Version 1.0.2 wird mindestens gebraucht!!!
 
@@ -35,5 +33,6 @@ Bei Rückmeldung des Moduls, wird die temporäre Datei (<HASH>.pem) gelöscht und e
 
 
 Changelog:
+1.1.1       OCSP Grundfunktionen getestet
 1.1.0       OCSP Support hinzugefügt, nicht vollständig getestet
 1.0.2       CRL Support hinzugefügt, OCSP Route definiert

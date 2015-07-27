@@ -131,6 +131,7 @@ Verify.prototype.verifyOcsp = function(cert, ocspUrl, callback){
 
         var resultArray = stdout.toString().trim().split(".pem");
         var result = resultArray[resultArray.length - 1];
+        result = result.substr(2,result.length -1)
 
         if (result.length == 0){
             jsonResult.status = 404;

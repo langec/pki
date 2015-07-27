@@ -222,7 +222,6 @@ function checkCertOCSP(req, res, next, certPath){
                     next("ERROR: " + err);
                 } else {
                     console.log('Cert successfully deleted.');
-                    console.log("result:" + result.content);//TODO debugging
 
                     sendResponse(res, result.status, result.content);
                 }

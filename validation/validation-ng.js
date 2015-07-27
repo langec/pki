@@ -21,7 +21,6 @@ angular.module('validation-ng', [])
     // 
     $scope.revoke = function(){
       console.log("revoke: " + $scope.revokeid.toString());
-      console.log(JSON.stringify({id: $scope.revokeid}));
       
       var config = {
         headers: {
@@ -29,7 +28,7 @@ angular.module('validation-ng', [])
         }};
         
       //$http.post("http://localhost:8080/revokeCert/",$scope.revokeid.toString()).
-      $http.post("http://h2418540.stratoserver.net:8080/revokeCert/",JSON.stringify({id: $scope.revokeid}),config).
+      $http.post("http://h2418540.stratoserver.net:8080/revokeCert/",$scope.revokeid,config).
         success(function(data, status, headers, config) {
           alert("Cert revoked: " + data );
           console.log("Cert revoked: " + data );

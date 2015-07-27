@@ -54,8 +54,8 @@ app.post('/revokeCert', function (req, res) {
 	 
 	if(/*!ipIsLocalhost(ip)*/ AUTHORIZED_IPS.indexOf(ip) < 0)
 	{
-		handleError(res, "Certificate Revocation only allowed by " + AUTHORIZED_IPS + "! (IP was: " + ip + ")");
-		return;
+		//handleError(res, "Certificate Revocation only allowed by " + AUTHORIZED_IPS + "! (IP was: " + ip + ")");
+		//return;
 	}
 	
 	var certId = req.body;
